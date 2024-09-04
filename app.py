@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, redirect
 
 app = Flask(__name__)
 
@@ -40,3 +40,18 @@ def oak():
     </body>
 </html>
 '''  
+
+count = 0
+@app.route("/lab1/counter")
+def counter():
+    global count
+    count += 1
+    return '''
+<!doctype html>
+<html>
+    <body>
+        Сколько раз вы заходили: ''' + str(count) + '''
+    </body>
+</html>
+'''  
+
