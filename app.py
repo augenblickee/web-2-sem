@@ -70,3 +70,15 @@ def created():
     </body>
 </html>
 ''', 201
+
+@app.errorhandler(404)
+def not_found(err):
+    path = url_for('static', filename='404.jpg')
+    return '''
+    <!doctype html>
+    <html>
+        <body>
+            <img src="''' + path + '''">
+        </body>
+    </html>
+    '''  
