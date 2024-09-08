@@ -55,3 +55,6 @@ def counter():
 </html>
 '''  
 
+@app.route('/info')
+def info():
+    return redirect("/author")
