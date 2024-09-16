@@ -147,3 +147,26 @@ def lab1():
         </body>
     </html>
     '''
+@app.route('/error/400')
+def error_400():
+    return 'BAD REQUEST', 400
+
+@app.route('/error/401')
+def error_401():
+    return 'UNAUTHORIZED', 401
+
+@app.route('/error/402')
+def error_402():
+    return 'PAYMENT REQUIRED', 402
+
+@app.route('/error/403')
+def error_403():
+    return 'FORBIDDEN', 403
+
+@app.route('/error/405')
+def error_405():
+    return 'METHOD NOT ALLOWED', 405
+
+@app.route('/error/418')
+def error_418():
+    return 'IM A TEAPOT', 418
