@@ -147,6 +147,16 @@ def lab1():
                 так называемых микрофреймворков — минималистичных каркасов веб-приложений, 
                 сознательно предоставляющих лишь самые базовые возможности.</p>
                 <a href="/">Назад на главную</a>
+                <h1>Список рутов</h1>
+                <ul>
+                    <li><a href="/lab1/web">web</a></li>
+                    <li><a href="/lab1/author">author</a></li>
+                    <li><a href="/lab1/oak">oak</a></li>
+                    <li><a href="/lab1/counter">counter</a></li>
+                    <li><a href="/lab1/info">info</a></li>
+                    <li><a href="/lab1/created">created</a></li>
+                    <li><a href="/lab1/gaming_monster">gaming_monster</a></li>
+                </ul>
             </main>
             <footer>
                  &copy; Осягин Иван, ФБИ-22, 2 курс, 2024
