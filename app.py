@@ -95,3 +95,28 @@ def clear():
     global count
     count = 0
     return redirect("/lab1/counter")
+
+@app.route("/")
+@app.route("/index")
+def start():
+    return '''
+    <!doctype html>
+    <html>
+        <head>
+            <title>НГТУ, ФБ, Лабораторные работы</title>
+        </head>
+        <body>
+            <header>
+                <h1>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</h1>
+            </header>
+            <nav>
+                <ul>
+                    <li><a href="/lab1">Первая лабораторная</a></li>
+                </ul>
+            </nav>
+            <footer>
+                 &copy; Осягин Иван, ФБИ-22, 2 курс, 2024
+            </footer>
+        </body>
+    </html>
+    '''
