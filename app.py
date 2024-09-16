@@ -81,11 +81,18 @@ def created():
 @app.errorhandler(404)
 def not_found(err):
     path = url_for('static', filename='404.jpg')
+    css = url_for('static', filename='lab1.css')
     return '''
     <!doctype html>
     <html>
+        <head>
+            <link rel="stylesheet" href="''' + css + '''">
+        </head>
         <body>
-            <img src="''' + path + '''">
+            <main>
+                <h1>ОЙ)))) ОШИБОЧКА)))</h1>
+                <img src="''' + path + '''">
+            <main>
         </body>
     </html>
     '''  
