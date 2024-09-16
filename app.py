@@ -57,6 +57,7 @@ def counter():
 <html>
     <body>
         Сколько раз вы заходили: ''' + str(count) + '''
+        <a href="/clear">очистить</a>
     </body>
 </html>
 '''  
@@ -88,3 +89,9 @@ def not_found(err):
         </body>
     </html>
     '''  
+
+@app.route('/clear')
+def clear():
+    global count
+    count = 0
+    return redirect("/lab1/counter")
