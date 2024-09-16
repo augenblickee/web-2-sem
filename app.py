@@ -177,3 +177,26 @@ def error_405():
 @app.route('/error/418')
 def error_418():
     return 'IM A TEAPOT', 418
+
+@app.route('/lol500')
+def lol500():
+    1 / 0
+
+@app.errorhandler(500)
+def err_505(err):
+    path = url_for('static', filename='500.png')
+    css = url_for('static', filename='lab1.css')
+    return '''
+    <!doctype html>
+    <html>
+        <head>
+            <link rel="stylesheet" href="''' + css + '''">
+        </head>
+        <body>
+            <main>
+                <h1>МЫ ПОДЕЛМИЛИ НА НОЛЬ ЧТО-ТО) НЕ ПАРЬТЕСЬ</h1>
+                <img src="''' + path + '''">
+            <main>
+        </body>
+    </html>
+    '''  
