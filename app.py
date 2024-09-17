@@ -1,6 +1,8 @@
 from flask import Flask, url_for, redirect
 
 app = Flask(__name__)
+create = False
+delete = False
 
 @app.route('/lab1/web')
 def web():
@@ -35,17 +37,17 @@ def oak():
     path = url_for('static', filename='oak.jpg')
     css = url_for('static', filename='lab1.css')
     return '''
-<!doctype html>
-<html>
-    <head>
-        <link rel="stylesheet" href="''' + css + '''">
-    </head>
-    <body>
-        <h1>Дуб</h1>
-        <img src="''' + path + '''">
-    </body>
-</html>
-'''  
+    <!doctype html>
+    <html>
+        <head>
+            <link rel="stylesheet" href="''' + css + '''">
+        </head>
+        <body>
+            <h1>Дуб</h1>
+            <img src="''' + path + '''">
+        </body>
+    </html>
+    '''  
 
 count = 0
 @app.route("/lab1/counter")
@@ -53,14 +55,14 @@ def counter():
     global count
     count += 1
     return '''
-<!doctype html>
-<html>
-    <body>
-        Сколько раз вы заходили: ''' + str(count) + '''
-        <a href="/clear">очистить</a>
-    </body>
-</html>
-'''  
+    <!doctype html>
+    <html>
+        <body>
+            Сколько раз вы заходили: ''' + str(count) + '''
+            <a href="/clear">очистить</a>
+        </body>
+    </html>
+    '''  
 
 @app.route('/lab1/info')
 def info():
@@ -68,15 +70,128 @@ def info():
 
 @app.route('/lab1/created')
 def created():
+    global create
+    css = url_for('static', filename='lab1.css')
+    if delete is True:
+        return '''
+        <!doctype html>
+        <html>
+            <head>
+                <link rel="stylesheet" href="''' + css + '''">
+            </head>
+            <body>
+                <h1>ТЫ ДОЛОМАЛ ЕГО, ЗАЧЕМ ИЗДЕВАТЬСЯ!?!?!?!? &#128544;</h1>
+                <div><i>:(</i></div>
+                <a href="/lab1/resource">Назад</a>
+            </body>
+        </html>
+        ''', 400
+
+    elif create is False:
+        create = True
+        path = url_for('static', filename='monster.webp')
+        return '''
+        <!doctype html>
+        <html>
+            <head>
+                <link rel="stylesheet" href="''' + css + '''">
+            </head>
+            <body>
+                <h1>Компьютер успешно ВКЛЮЧЕН! &#128520;</h1>
+                <img src="''' + path + '''">
+                <p><a href="/lab1/resource">Назад</a></p>
+            </body>
+        </html>
+        ''', 201
+    
+    else:
+        return '''
+        <!doctype html>
+        <html>
+            <head>
+                <link rel="stylesheet" href="''' + css + '''">
+            </head>
+            <body>
+                <h1>ТЫ УЖЕ ВКЛЮЧИЛ КОМПЬЮТЕР, ЧЕГО ТЫ ХОЧЕШЬ!? &#128544;</h1>
+                <div><i>:(</i></div>
+                <a href="/lab1/resource">Назад</a>
+            </body>
+        </html>
+        ''', 400
+
+@app.route('/lab1/delete')
+def delete():
+    global create
+    global delete
+    css = url_for('static', filename='lab1.css')
+    path = url_for('static', filename='broken.jpg')
+
+    if delete is True or create is False:
+        return '''
+        <!doctype html>
+        <html>
+            <head>
+                <link rel="stylesheet" href="''' + css + '''">
+            </head>
+            <body>
+                <h1>ТЫ ЛИБО КОМПЬЮТЕР УЖЕ ДОЛОМАЛ, ЛИБО НЕ ВКЛЮЧИЛ</h1>
+                <a href="/lab1/resource">Назад</a>
+            </body>
+        </html>
+        ''', 400
+
+    else:
+        delete = True
+        return '''
+        <!doctype html>
+        <html>
+            <head>
+                <link rel="stylesheet" href="''' + css + '''">
+            </head>
+            <body>
+                <h1>Доигрался.... Компьютер сломан &#9760;</h1>
+                <img src="''' + path + '''">
+                <div><i>:(</i></div>
+                <a href="/lab1/resource">Назад</a>
+            </body>
+        </html>
+        ''', 200
+
+
+@app.route('/lab1/resource')
+def resource():
+    global create
+    global delete
+    status = ''
+    css = url_for('static', filename='lab1.css')
+    if create is True:
+        status = 'Вы включали компьютер &#128077;'
+    else:
+        status = 'Вы еще не включали компьютер &#128557;'
     return '''
-<!doctype html>
-<html>
-    <body>
-        <h1>Cоздано успешно</h1>
-        <div><i>что-то задано...</i></div>
-    </body>
-</html>
-''', 201
+    <!doctype html>
+    <html>
+        <head>
+            <title>Лабораторная 1</title>
+            <link rel="stylesheet" href="{}">
+        </head>
+        <body>
+            <header>
+                <h1>Статус игрового "зверя"</h1>
+            </header>
+            <main>
+                <h1>{}</h1>
+                <ul>
+                    <li><a href="/lab1/created">Включить компютер</a></li>
+                    <li><a href="/lab1/delete">Сломать компьютер</a></li>
+                </ul>
+            </main>
+            <footer>
+                &copy; Осягин Иван, ФБИ-22, 2 курс, 2024
+            </footer>
+        </body>
+    </html>
+    '''.format(css, status)
 
 @app.errorhandler(404)
 def not_found(err):
@@ -154,7 +269,7 @@ def lab1():
                     <li><a href="/lab1/oak">oak</a></li>
                     <li><a href="/lab1/counter">counter</a></li>
                     <li><a href="/lab1/info">info</a></li>
-                    <li><a href="/lab1/created">created</a></li>
+                    <li><a href="/lab1/resource">доп задание resource</a></li>
                     <li><a href="/lab1/gaming_monster">gaming_monster</a></li>
                 </ul>
             </main>
