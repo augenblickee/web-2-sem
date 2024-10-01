@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{# номер лабы #}
+{% block lab %}Лабораторная работа 2{% endblock%}
+
+{# основной блок #}
+{% block main %}
+    <p>Список книг:</p>
+    <ul>
+        {% for book in booklist %}
+        <li>{{ loop.index }} - "{{ book.name }}" (Автор: {{ book.author }}, Жанр: {{ book.gender }}, Страниц: {{ book.pageNum }})</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

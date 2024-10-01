@@ -509,3 +509,21 @@ def calcredirect():
 @app.route('/lab2/calc/<int:a>')
 def calcredirect2(a):
     return redirect(f'/lab2/calc/{a}/1')
+
+booklist = [
+    {"author": "Хян Со", "name": 'Призрак в магазине канцтоваров', 'gender': 'Корейское', 'pageNum': 224},
+    {"author": "Дадзай Осаму", "name": "Человек недостойный", 'gender': 'Классическая литература', 'pageNum': 192},
+    {"author": "Харуки Мураками", "name": "Норвежский лес", 'gender': 'Современная японская литература', 'pageNum': 384},
+    {"author": "Лев Толстой", "name": "Война и мир", 'gender': 'Русская классика', 'pageNum': 1225},
+    {"author": "Федор Достоевский", "name": "Преступление и наказание", 'gender': 'Русская классика', 'pageNum': 671},
+    {"author": "Габриэль Гарсия Маркес", "name": "Сто лет одиночества", 'gender': 'Латиноамериканская литература', 'pageNum': 417},
+    {"author": "Джордж Оруэлл", "name": "1984", 'gender': 'Английская литература', 'pageNum': 328},
+    {"author": "Михаил Булгаков", "name": "Мастер и Маргарита", 'gender': 'Русская литература', 'pageNum': 480},
+    {"author": "Джейн Остин", "name": "Гордость и предубеждение", 'gender': 'Английская классическая литература', 'pageNum': 279},
+    {"author": "Маргарет Этвуд", "name": "Рассказ служанки", 'gender': 'Современная литература', 'pageNum': 311}
+]
+
+@app.route('/lab2/booklist/')
+def bookslist():
+    global booklist
+    return render_template('booklist.html', booklist=booklist)
