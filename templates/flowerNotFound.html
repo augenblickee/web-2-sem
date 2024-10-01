@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 2{% endblock %}
+
+{% block main %}
+    <h1>ТАКОГО ЦВЕТОЧКА НЕТ :(</h1>
+    <p>Всего цветков: {{ total_flowers }}</p>
+    {% for flower in flower_list %}
+        <li>{{ flower.name }}</li>
+    {% endfor %}
+{% endblock %}

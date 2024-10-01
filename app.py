@@ -1,4 +1,4 @@
-from flask import Flask, url_for, redirect, render_template
+from flask import Flask, url_for, redirect, render_template, abort, request ,redirect
 
 app = Flask(__name__)
 create = False
@@ -388,42 +388,21 @@ def a():
 def a2():
     return 'со слешем'
 
-flower_list = ['роза', "тюльпан", "ЖИМОЛОСТЬ)", "Глеб", "Ананас"]
+flower_list = [
+    {"name": "роза", "price": 100},
+    {"name": "тюльпан", "price": 50},
+    {"name": "жимолость", "price": 70},
+    {"name": "Глеб", "price": 2000},  
+    {"name": "ананас", "price": 200}
+]
+
 @app.route('/lab2/flowers/<int:flower_id>')
 def flowers(flower_id):
-    css = url_for('static', filename='lab1.css')
-    
     if flower_id >= len(flower_list):
-        return f'''
-        <!doctype html>
-        <html>
-            <head>
-                <link rel="stylesheet" href="{css}">
-            </head>
-            <body>
-            <h1>ТАКОГО ЦВЕТОЧКА НЕТ :(</h1>
-            <p>Всего цветков: {len(flower_list)}</p>
-            <a href="/lab2/flowers">Вернуться на главную</a>
-            </body>
-        </html>
-        ''', 404
+        return render_template('flowerNotFound.html', total_flowers=len(flower_list), flower_list=flower_list), 404
     else:
-        flower_name = flower_list[flower_id]
-        return f'''
-        <!doctype html>
-        <html>
-            <head>
-                <link rel="stylesheet" href="{css}">
-            </head>
-            <body>
-            <h1>Цветок: {flower_name}</h1>
-            <p>Номер цветка: {flower_id}</p>
-            <p>Всего цветков: {len(flower_list)}</p>
-            <p>Полный список: {flower_list}</p>
-            <a href="/lab2/flowers">Вернуться на главную</a>
-            </body>
-        </html>
-        '''
+        flower = flower_list[flower_id]
+        return render_template('flowerFound.html', flower=flower, flower_id=flower_id, total_flowers=len(flower_list), flower_list=flower_list)
 
 @app.route('/lab2/flowers/delete')
 def deleteFlower():
@@ -431,42 +410,13 @@ def deleteFlower():
     flower_list = []
     return redirect('/lab2/flowers')
 
-@app.route('/lab2/add_flower/', defaults={'name': ''})
-@app.route('/lab2/add_flower/<name>')
-def add_flower(name):
-    css = url_for('static', filename='lab1.css')
-    if name == '':
-        return f'''
-    <!doctype html>
-    <html>
-        <head>
-            <link rel="stylesheet" href="{css}">
-        </head>
-        <body>
-        <h1>Вы не написали название цветка!</h1>
-        <p>Всего цветков: {len(flower_list)}</p>
-        <p>Полный список: {flower_list}</p>
-        <a href='>
-        </body>
-    </html>
-    ''', 400
-    else:
-        flower_list.append(name)
-        return f'''
-    <!doctype html>
-    <html>
-        <head>
-            <link rel="stylesheet" href="{css}">
-        </head>
-        <body>
-        <h1>Цветок добавлен!</h1>
-        <p>Название нового цветка: {name}</p>
-        <p>Всего цветков: {len(flower_list)}</p>
-        <p>Полный список: {flower_list}</p>
-        <a href='>
-        </body>
-    </html>
-    '''
+@app.route('/lab2/add_flower')
+def add_flower():
+    flower_name = request.args.get('name')
+    if flower_name:
+        flower_list.append({"name": flower_name, "price": "Неизвестно"})
+    return redirect('/lab2/flowers')
+   
 @app.route('/lab2/flowers')
 def flowersList():
     return render_template('flowers.html', flower_list=flower_list)
@@ -541,3 +491,11 @@ gamingPcList = [
 def gamingPcsList():
     global gamingPcList
     return render_template('gamingAF.html', gamingPcList=gamingPcList)
+
+@app.route('/lab2/flowers/deleteNum/<int:num>')
+def deleteNumFlower(num):
+    if num <= len(flower_list) and num >= 0:
+        flower_list.pop(num)
+        return redirect('/lab2/flowers')
+    else:
+        abort(404)
