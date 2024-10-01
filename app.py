@@ -234,6 +234,7 @@ def start():
             <main>
                 <ul>
                     <li><a href="/lab1">Первая лабораторная</a></li>
+                    <li><a href="/lab2">Вторая лабораторная</a></li>
                 </ul>
             </main>
             <footer>
@@ -527,3 +528,16 @@ booklist = [
 def bookslist():
     global booklist
     return render_template('booklist.html', booklist=booklist)
+
+gamingPcList = [
+    {"Name": "Игровое Безумие", "url": 'gaming1.webp', 'about': 'Безумный по самое не балуй'},
+    {"Name": "Предвестник потной катки", "url": 'gaming2.webp', 'about': 'ИГРАТЬ! ИГРАТЬ! ИГРАТЬ!'},
+    {"Name": "Играй не хочу!", "url": 'gaming3.jpg', 'about': 'Я уже реально не хочу....'},
+    {"Name": "Ядерный зверь", "url": 'gaming4.jpg', 'about': 'АНОМАЛИЯ в мире ИГРОВЫХ PC'},
+    {"Name": "Чернобыльская игровуха", "url": 'gaming5.png', 'about': 'Из 4 реактора прямо к вам в квартиру!'}
+]
+
+@app.route('/lab2/gamingpcs')
+def gamingPcsList():
+    global gamingPcList
+    return render_template('gamingAF.html', gamingPcList=gamingPcList)

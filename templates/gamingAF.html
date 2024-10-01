@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{# номер лабы #}
+{% block lab %}Лабораторная работа 2{% endblock %}
+
+{# основной блок #}
+{% block main %}
+    <h1>Список игровых БЕЗУМИЙ&#9760;:</h1>
+    <ul>
+        {% for pc in gamingPcList %}
+        <li>
+            <h3>{{ loop.index }} - "{{ pc.Name }}"</h3>
+            <p>Описание: {{ pc.about }}</p>
+            <img src="{{ url_for('static', filename=pc.url) }}" alt="{{ pc.Name }}" width="200" />
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
