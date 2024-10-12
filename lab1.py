@@ -1,6 +1,7 @@
 from flask import Blueprint, url_for, redirect
 
 lab1 = Blueprint('lab1', __name__)
+
 create = False
 delete = False
 
@@ -324,7 +325,7 @@ def error_418():
 @lab1.route('/lol500')
 def lol500():
     1 / 0
-    
+
 
 @lab1.route('/lab1/gaming_monster')
 def gamingpc():
