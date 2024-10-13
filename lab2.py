@@ -6,9 +6,11 @@ lab2 = Blueprint('lab2', __name__)
 def a():
     return 'без слэша'
 
+
 @lab2.route("/lab2/a2")
 def a2():
     return 'со слешем'
+
 
 flower_list = [
     {"name": "роза", "price": 100},
@@ -26,11 +28,13 @@ def flowers(flower_id):
         flower = flower_list[flower_id]
         return render_template('flowerFound.html', flower=flower, flower_id=flower_id, total_flowers=len(flower_list), flower_list=flower_list)
 
+
 @lab2.route('/lab2/flowers/delete')
 def deleteFlower():
     global flower_list
     flower_list = []
     return redirect('/lab2/flowers')
+
 
 @lab2.route('/lab2/add_flower')
 def add_flower():
@@ -39,9 +43,11 @@ def add_flower():
         flower_list.append({"name": flower_name, "price": "Неизвестно"})
     return redirect('/lab2/flowers')
    
+
 @lab2.route('/lab2/flowers')
 def flowersList():
     return render_template('flowers.html', flower_list=flower_list)
+
 
 @lab2.route('/lab2/example')
 def example():
@@ -61,27 +67,33 @@ def example():
                            name=name, group=group, course=course,
                            lab_num=lab_num, fruits=fruits)
 
+
 @lab2.route('/lab2/')
 def lab():
     return render_template('lab2.html')
+
 
 @lab2.route('/lab2/filters')
 def filters():
     phrase = 'О <b>сколько</b> <u>нам</u> <i>открытий</i> чудных...'
     return render_template('filter.html', phrase=phrase)
 
+
 @lab2.route('/lab2/calc/<int:a>/<int:b>')
 def calc(a,b):
     return render_template('calcLab2.html', a=a,b=b)
+
 
 @lab2.route('/lab2/calc/')
 @lab2.route('/lab2/calc')
 def calcredirect():
     return redirect('/lab2/calc/1/1')
 
+
 @lab2.route('/lab2/calc/<int:a>')
 def calcredirect2(a):
     return redirect(f'/lab2/calc/{a}/1')
+
 
 booklist = [
     {"author": "Хян Со", "name": 'Призрак в магазине канцтоваров', 'gender': 'Корейское', 'pageNum': 224},
@@ -96,10 +108,12 @@ booklist = [
     {"author": "Маргарет Этвуд", "name": "Рассказ служанки", 'gender': 'Современная литература', 'pageNum': 311}
 ]
 
+
 @lab2.route('/lab2/booklist/')
 def bookslist():
     global booklist
     return render_template('booklist.html', booklist=booklist)
+
 
 gamingPcList = [
     {"Name": "Игровое Безумие", "url": 'gaming1.webp', 'about': 'Безумный по самое не балуй'},
@@ -109,10 +123,12 @@ gamingPcList = [
     {"Name": "Чернобыльская игровуха", "url": 'gaming5.png', 'about': 'Из 4 реактора прямо к вам в квартиру!'}
 ]
 
+
 @lab2.route('/lab2/gamingpcs')
 def gamingPcsList():
     global gamingPcList
     return render_template('gamingAF.html', gamingPcList=gamingPcList)
+
 
 @lab2.route('/lab2/flowers/deleteNum/<int:num>')
 def deleteNumFlower(num):
