@@ -1,15 +1,19 @@
 {% extends "base.html" %}
 
 {# номер лабы #}
-{% block lab %}Лабораторная работа 2{% endblock%}
+{% block lab %}Лабораторная работа 3{% endblock%}
 
 {# основной контент#}
 {% block main %}
     <h1>Формы, cookie</h1>
+    <div>Привет, <span style="color: {{name_color}}">{{name}}</span>&#10071;&#10071;&#10071;</div>
     <div>Тема лабораторной - формы, cookie. Список сделанных страниц:</div>
     <ol>
         <li>
             <a href="/lab3/cookie">КУКИ</a>
+        </li>
+        <li>
+            <a href="/lab3/del_cookie"><u>Очистить куки</u></a>
         </li>
     </ol>
 {% endblock %}
