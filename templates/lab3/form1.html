@@ -5,11 +5,11 @@
 {% block main %}
     {% if user %}
 
-   <h1>Привет, {{user}}</h1>
+   <h1>Привет, {{ user }}</h1>
    <h2>Добро пожаловать на мой сайт</h2>
 
-    <div>Ваш возраст: {{age}}</div>
-    <div>Ваш пол: {{sex}}</div>
+    <div>Ваш возраст: {{ age }}</div>
+    <div>Ваш пол: {{ 'мужской' if sex == 'male' else 'женский'}}</div>
 
    <div>
         <a href="/lab3/form1">Заново</a>
