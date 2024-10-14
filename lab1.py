@@ -37,7 +37,7 @@ def author():
 
 @lab1.route('/lab1/oak')
 def oak():
-    path = url_for('static', filename='oak.jpg')
+    path = url_for('static', filename='/lab1/oak.jpg')
     css = url_for('static', filename='lab1.css')
     return '''
     <!doctype html>
@@ -95,7 +95,7 @@ def created():
 
     elif create is False:
         create = True
-        path = url_for('static', filename='monster.webp')
+        path = url_for('static', filename='/lab1/monster.webp')
         return '''
         <!doctype html>
         <html>
@@ -131,7 +131,7 @@ def delete():
     global create
     global delete
     css = url_for('static', filename='lab1.css')
-    path = url_for('static', filename='broken.jpg')
+    path = url_for('static', filename='/lab1/broken.jpg')
 
     if delete is True or create is False:
         return '''
@@ -199,26 +199,6 @@ def resource():
         </body>
     </html>
     '''.format(css, status)
-
-
-@lab1.errorhandler(404)
-def not_found(err):
-    path = url_for('static', filename='404.jpg')
-    css = url_for('static', filename='lab1.css')
-    return '''
-    <!doctype html>
-    <html>
-        <head>
-            <link rel="stylesheet" href="''' + css + '''">
-        </head>
-        <body>
-            <main>
-                <h1>ОЙ)))) ОШИБОЧКА)))</h1>
-                <img src="''' + path + '''">
-            <main>
-        </body>
-    </html>
-    '''  
 
 
 @lab1.route('/clear')
@@ -329,7 +309,7 @@ def lol500():
 
 @lab1.route('/lab1/gaming_monster')
 def gamingpc():
-    path = url_for('static', filename='pc.jpg')
+    path = url_for('static', filename='/lab1/pc.jpg')
     css = url_for('static', filename='lab1.css')
     return '''
     <!doctype html>
