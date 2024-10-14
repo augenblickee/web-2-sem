@@ -100,3 +100,13 @@ def settings():
     linkcolor = request.cookies.get('linkcolor')
     resp = make_response(render_template('lab3/settings.html', color=color, backgroundcolor=backgroundcolor,fontsize=fontsize, linkcolor=linkcolor))
     return resp
+
+
+@lab3.route('/lab3/delete_cookies')
+def deletecookies():
+    resp = make_response(redirect('/lab3/settings'))
+    resp.delete_cookie('color')
+    resp.delete_cookie('backgroundcolor')
+    resp.delete_cookie('fontsize')
+    resp.delete_cookie('linkcolor')
+    return resp
