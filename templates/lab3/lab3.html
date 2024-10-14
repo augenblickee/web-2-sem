@@ -6,7 +6,11 @@
 {# основной контент#}
 {% block main %}
     <h1>Формы, cookie</h1>
-    <div>Привет, <span style="color: {{name_color}}">{{name}}</span>&#10071;&#10071;&#10071;</div>
+    {% if name %}
+        <div>Привет, <span style="color: {{name_color}}">{{name}}, твой возраст {{age}}</span>&#10071;&#10071;&#10071;</div>
+    {% else %}
+        <div>Привет, анонимус...</span>&#10071;&#10071;&#10071;</div>
+    {% endif %}
     <div>Тема лабораторной - формы, cookie. Список сделанных страниц:</div>
     <ol>
         <li>

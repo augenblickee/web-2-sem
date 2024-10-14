@@ -6,9 +6,10 @@ errors ={}
 
 @lab3.route('/lab3/')
 def lab():
+    age = request.cookies.get('age')
     name = request.cookies.get('name')
     name_color = request.cookies.get('name_color')
-    return render_template('/lab3/lab3.html', name=name, name_color=name_color)
+    return render_template('/lab3/lab3.html', name=name, name_color=name_color, age=age)
 
 
 @lab3.route('/lab3/cookie')
