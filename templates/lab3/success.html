@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock%}
+
+{% block main %}
+    <div class="order">
+        <h1>СПАСИБО, ВСЕ ДЕНЬГИ С КАРТОЧКИ СПИСАНЫ!</h1>
+        <div>Ладно пошутил, списано: {{ price }}</div>
+        <a href="/lab3/order">Назад</a>
+    </div>
+{% endblock %}

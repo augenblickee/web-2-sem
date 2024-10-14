@@ -42,13 +42,48 @@ a:hover {
 }
 
 .error {
-    color: red; /* Белый текст */
-    padding: 15px 20px; /* Отступы */
-    border-radius: 10px; /* Закругленные углы */
-    font-family: 'Arial', sans-serif; /* Шрифт */
-    font-size: 18px; /* Размер текста */
-    text-align: center; /* Выравнивание текста по центру */
-    position: relative; /* Относительное позиционирование */
-    overflow: hidden; /* Скрытие выступающих элементов */
-    transition: transform 0.3s ease; /* Анимация при наведении */
+    color: red;
+    padding: 15px 20px; 
+    border-radius: 10px;
+    font-family: 'Arial', sans-serif; 
+    font-size: 18px; 
+    text-align: center;
+    position: relative; 
+    overflow: hidden; 
+    transition: transform 0.3s ease; 
+}
+
+.order {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid #ccc;
+}
+
+.order label {
+    display: block;
+    margin: 10px 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.order input[type="radio"],
+.order input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.order button {
+    background-color: red;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.order button:hover {
+    background-color: red;
 }
