@@ -77,3 +77,25 @@ price = 0
 def success():
     global price
     return render_template('/lab3/success.html', price=price)
+
+@lab3.route('/lab3/settings', methods=['GET', 'POST'])
+def settings():
+    if request.method == 'POST':
+        color = request.form.get('color')
+        backgroundcolor = request.form.get('backgroundcolor')
+        fontsize = request.form.get('fontsize')
+        linkcolor = request.form.get('linkcolor')
+        if color and backgroundcolor:
+            resp = make_response(redirect('/lab3/settings'))
+            resp.set_cookie('color', color)
+            resp.set_cookie('backgroundcolor', backgroundcolor)
+            resp.set_cookie('fontsize', fontsize)
+            resp.set_cookie('linkcolor', linkcolor)
+            return resp
+
+    color = request.cookies.get('color')
+    backgroundcolor = request.cookies.get('backgroundcolor')
+    fontsize = request.cookies.get('fontsize')
+    linkcolor = request.cookies.get('linkcolor')
+    resp = make_response(render_template('lab3/settings.html', color=color, backgroundcolor=backgroundcolor,fontsize=fontsize, linkcolor=linkcolor))
+    return resp

@@ -9,6 +9,27 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-16x16.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='facicon.ico') }}" type="image/x-icon">
+    <style>
+        body{
+            {% if request.cookies.get('color') %}
+            color: {{ request.cookies.get('color') }};
+            {% endif %}
+
+            {% if request.cookies.get('backgroundcolor') %}
+            background-color: {{ request.cookies.get('backgroundcolor') }};
+            {% endif %}
+
+            {% if request.cookies.get('fontsize') %}
+            font-size: {{ request.cookies.get('fontsize') + 'px'}};
+            {% endif %}
+        }
+
+        a{
+            {% if request.cookies.get('linkcolor') %}
+            color: {{ request.cookies.get('linkcolor') }};
+            {% endif %}
+        }
+    </style>
 </head>
 <body>
     <header>
