@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock%}
+
+{% block main %}
+    {% if check %}
+
+        <h1>ЗАКАЗ БИЛЕТА "GLEB-EXPRESS"</h1>
+        <h2>Детали вашего заказа:</h2>
+
+        {% if age|int < 18 %}
+            <div>Детский билет</div>
+        {% else %}
+            <div>Взрослый билет</div>
+        {% endif %}
+        <div>Стоимость билета:{{ticketCost}}</div>
+
+   <div>
+        <a href="/lab3/formTrain">Заново</a>
+   </div>
+
+   {% else %}
+   <h1>ЗАКАЗ БИЛЕТА "GLEB-EXPRESS"</h1>
+   <form action="">
+        <label>ФИО:</label>
+        <div>
+            <input type="text" placeholder="Введите ваше ФИО" name="fio" value="{{fio or ''}}">
+            <span class="error">{{errors.fio}}</span>
+        </div>
+
+        <label>Полка:</label>
+        <div>
+            <select name="place">
+                <option value="нижняя" {{place == 'нижняя' and 'selected'}}>нижняя</option>
+                <option value="верхняя" {{place == 'верхняя' and 'selected'}}>верхняя</option>
+                <option value="верхняя боковая" {{place == 'верхняя боковая' and 'selected'}}>верхняя боковая</option>
+                <option value="нижняя боковая" {{place == 'нижняя боковая' and 'selected'}}>нижняя боковая</option>
+            </select>
+        </div>
+        <label>Белье:</label>
+        <div>
+            <input type="checkbox" name="linen" value="{{linen or ''}}">
+        </div>
+
+        <label>Багаж:</label>
+        <div>
+            <input type="checkbox" name="luggage" value="{{luggage or ''}}">
+        </div>
+
+        <label>Возраст:</label>
+        <div>
+            <input type="number" name="age" value="{{age or ''}}">
+            <span class="error">{{errors.age}}</span>
+        </div>
+
+        <label>Пункт въезда:</label>
+        <div>
+            <input type="text" placeholder="Откуда" name="start" value="{{start or ''}}">
+            <span class="error">{{errors.start}}</span>
+        </div>
+
+        <label>Пункт назначения:</label>
+        <div>
+            <input type="text" placeholder="Куда" name="end" value="{{end or ''}}">
+            <span class="error">{{errors.end}}</span>
+        </div>
+
+        <label>Дата поездки:</label>
+        <div>
+            <input type="date" name="date" value="{{date or ''}}">
+            <span class="error">{{errors.date}}</span>
+        </div>
+
+        <label>Страховка:</label>
+        <div>
+            <input type="checkbox" name="insurance" value="{{insurance or ''}}">
+        </div>
+
+        <div>
+            <button type="submit">Отправить</button>
+        </div>
+   </form>
+   
+   {% endif %}
+{% endblock %}
