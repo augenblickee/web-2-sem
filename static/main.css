@@ -87,3 +87,31 @@ a:hover {
 .order button:hover {
     background-color: red;
 }
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.phone-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.phone-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.phone-details {
+    font-size: 14px;
+    color: #555;
+}
+
+.phone-color, .phone-mem, .phone-price {
+    margin-right: 10px;
+}

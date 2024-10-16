@@ -182,3 +182,53 @@ def deletecookies():
     resp.delete_cookie('fontsize')
     resp.delete_cookie('linkcolor')
     return resp
+
+
+smartPhoneList = [
+    {'Name':'IPhone 9', 'Color':'red','MEM':128, 'Price':30000},
+    {'Name':'Samsung Galaxy SS14', 'Color':'blue','MEM':128, 'Price':45000},
+    {'Name':'Xiaomi Mi 1000', 'Color':'black','MEM':256, 'Price':35000},
+    {'Name':'Google Pixel 10 XXL LARGE', 'Color':'white','MEM':128, 'Price':40000},
+    {'Name':'OneMinus -10', 'Color':'silver','MEM':256, 'Price':42000},
+    {'Name':'Huawei Google Play', 'Color':'gold','MEM':128, 'Price':38000},
+    {'Name':'Sony Xperia 1 III', 'Color':'purple','MEM':256, 'Price':50000},
+    {'Name':'LG Velvet', 'Color':'green','MEM':128, 'Price':32000},
+    {'Name':'Motorola Edge', 'Color':'gray','MEM':256, 'Price':34000},
+    {'Name':'Nokia 8.3', 'Color':'blue','MEM':128, 'Price':28000},
+    {'Name':'Oppo Reno 5', 'Color':'pink','MEM':128, 'Price':33000},
+    {'Name':'Vivo X60', 'Color':'black','MEM':256, 'Price':36000},
+    {'Name':'Realme 8 Pro', 'Color':'red','MEM':128, 'Price':25000},
+    {'Name':'Asus ROG Phone 5', 'Color':'white','MEM':256, 'Price':48000},
+    {'Name':'ZTE Axon 30', 'Color':'black','MEM':128, 'Price':31000},
+    {'Name':'Lenovo Legion Phone Duel', 'Color':'blue','MEM':256, 'Price':45000},
+    {'Name':'BlackBerry Key2', 'Color':'silver','MEM':128, 'Price':37000},
+    {'Name':'Alcatel 3X', 'Color':'gold','MEM':64, 'Price':18000},
+    {'Name':'Meizu 18', 'Color':'purple','MEM':128, 'Price':30000},
+    {'Name':'TCL 20 Pro', 'Color':'green','MEM':256, 'Price':34000},
+    {'Name':'Honor 50', 'Color':'gray','MEM':128, 'Price':32000}
+]
+
+
+@lab3.route('/lab3/smartPhone')
+def smartPhone():
+    min = request.args.get('min')
+    max = request.args.get('max')
+    showList =[]
+    if min == '':
+        errors['min'] = 'Заполните поле!'
+    else:
+        errors['min'] = ''
+
+    if max == '':
+        errors['max'] = 'Заполните поле!'
+    else:
+        errors['max'] = ''
+
+    if (min and max):
+        for i in smartPhoneList:
+            if i['Price'] >= int(min) and i['Price'] <= int(max):
+                showList.append(i)
+
+    return render_template('/lab3/smartPhone.html', min=min, max=max, errors=errors, smartPhoneList=smartPhoneList,
+                           showList=showList)
+    
