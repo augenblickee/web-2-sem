@@ -16,11 +16,44 @@ def div_form():
 def div():
     x1 = request.form.get('x1')
     x2 = request.form.get('x2')
-    if x1 == '' or x2 == '':
-        return render_template('lab4/div.html', error='Оба поля должны быть заполнены!')
-    elif x2 == '0':
-        return render_template('lab4/div.html', error='На ноль делить нельзя!')
-    x1 = int(x1)
-    x2 = int(x2)
-    result = x1 / x2
-    return render_template('lab4/div.html', x1=x1, x2=x2, result=result)
+    op = request.form.get('op')
+    if op == '/':
+        if x1 == '' or x2 == '':
+            return render_template('lab4/div.html', error='Оба поля должны быть заполнены!')
+        elif x2 == '0':
+            return render_template('lab4/div.html', error='На ноль делить нельзя!')
+        x1 = int(x1)
+        x2 = int(x2)
+        result = x1 / x2
+    elif op == '+':
+        if x1 == '':
+            x1 = '0'
+        if x2 == '':
+            x2 = '0'
+        x1 = int(x1)
+        x2 = int(x2)
+        result = x1 + x2
+
+    elif op == '*':
+        if x1 == '':
+            x1 = '1'
+        if x2 == '':
+            x2 = '1'
+        x1 = int(x1)
+        x2 = int(x2)
+        result = x1 * x2
+
+    elif op == '-':
+        if x1 == '' or x2 == '':
+            return render_template('lab4/div.html', error='Оба поля должны быть заполнены!')
+        x1 = int(x1)
+        x2 = int(x2)
+        result = x1 - x2
+    else:
+        if x1 == '' or x2 == '' or (x1 == '0' and x2 == '0'):
+            return render_template('lab4/div.html', error='Заполните поля или нолики свои тут не пихайте куда попало!')
+        x1 = int(x1)
+        x2 = int(x2)
+        result = x1 ** x2
+    return render_template('lab4/div.html', x1=x1, x2=x2, result=result, op=op)
+
