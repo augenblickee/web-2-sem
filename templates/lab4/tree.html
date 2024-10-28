@@ -8,9 +8,23 @@
     <div>
         Посажено деревьев: {{ tree_count }}
     </div>
-
     <form method="post">
-        <button name="operation" value="plant">Посадить дерево</button>
-        <button name="operation" value="cut">Срубить дерево</button>
+        {% if tree_count == 10 %}
+            <button disabled name="operation" value="plant">Посадить дерево</button>
+        {% else %}
+            <button name="operation" value="plant">Посадить дерево</button>
+        {% endif %}
+
+        {% if tree_count == 0 %}
+            <button disabled name="operation" value="cut">Срубить дерево</button>
+        {% else %}
+            <button name="operation" value="cut">Срубить дерево</button>
+        {% endif %}
     </form>
+    {% for _ in range(tree_count) %}
+        <img src="{{ url_for('static', filename='/lab4/trent.png') }}" alt="Tree" width="100" />
+    {% endfor %}
+    {% if tree_count == 0 %}
+        <img src="{{ url_for('static', filename='/lab4/tree.jpeg') }}" alt="Tree" width="500" />
+    {% endif %}
 {% endblock %}
