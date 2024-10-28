@@ -46,7 +46,7 @@ def form1():
     return render_template('lab3/form1.html', user=user, age=age, sex=sex, errors=errors)
 
 
-@lab3.route('/lab3/formTrain', methods=['GET', 'POST'])
+@lab3.route('/lab3/formTrain')
 def formTrain():
     ticketCost = 0
     fio = request.args.get('fio')
