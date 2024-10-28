@@ -9,13 +9,13 @@
         Посажено деревьев: {{ tree_count }}
     </div>
     <form method="post">
-        {% if tree_count == 10 %}
+        {% if tree_count >= 10 %}
             <button disabled name="operation" value="plant">Посадить дерево</button>
         {% else %}
             <button name="operation" value="plant">Посадить дерево</button>
         {% endif %}
 
-        {% if tree_count == 0 %}
+        {% if tree_count <= 0 %}
             <button disabled name="operation" value="cut">Срубить дерево</button>
         {% else %}
             <button name="operation" value="cut">Срубить дерево</button>
