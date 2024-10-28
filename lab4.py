@@ -58,7 +58,7 @@ def div():
     return render_template('lab4/div.html', x1=x1, x2=x2, result=result, op=op)
 
 
-tree_count = 0
+tree_count = 1
 
 
 @lab4.route('/lab4/tree', methods = ['GET', 'POST'])
