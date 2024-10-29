@@ -139,9 +139,6 @@ def fridge():
     output = ''
 
     if request.method == 'POST':
-        if 'reset' in request.form:
-            return render_template('/lab4/fridge.html', output='', temp='', snowflakes=0)
-
         if temp == '':
             output = 'Ошибка: не задана температура'
         elif int(temp) < -12:
