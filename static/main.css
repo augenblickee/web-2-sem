@@ -47,7 +47,6 @@ a:hover {
     border-radius: 10px;
     font-family: 'Arial', sans-serif; 
     font-size: 18px; 
-    text-align: center;
     position: relative; 
     overflow: hidden; 
     transition: transform 0.3s ease; 

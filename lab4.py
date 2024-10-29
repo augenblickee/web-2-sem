@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, make_response
 
 lab4 = Blueprint('lab4', __name__)
 
@@ -83,34 +83,47 @@ def tree():
 
 
 users = [
-    {'login': 'alex', 'password': '123'},
-    {'login': 'bob', 'password': '555'},
-    {'login': 'gleb', 'password': '321'},
-    {'login': 'SUS', 'password': 'gleb'},
+    {'login': 'alex', 'password': '123','name':'Александор Йоу', 'sex':'male'},
+    {'login': 'bob', 'password': '555','name':'БоБ Йоу', 'sex':'male'},
+    {'login': 'gleb', 'password': '321','name':'Глеб Кубраков', 'sex':'male'},
+    {'login': 'SUS', 'password': 'gleb','name':'СУС СУС', 'sex':'male'},
 ]
 
 
 @lab4.route('/lab4/login', methods = ['GET', 'POST'])
 def login():
+    name = ''
+    last_login = session.get('last_login', '') 
     if request.method == 'GET':
         if 'login' in session:
             authorized = True
             login = session['login']
+            for user in users:
+                if user['login'] == login:
+                    name = user['name']
+                    break
         else:
             authorized = False
             login = ''
-        return render_template('lab4/login.html', authorized=authorized, login=login)
+        return render_template('lab4/login.html', authorized=authorized, login=login, name=name, last_login=last_login)
     
     login = request.form.get('login')
     password = request.form.get('password')
+    session['last_login'] = login
 
     for user in users:
         if login == user['login'] and password == user['password']:
             session['login'] = login
             return redirect('/lab4/login')
-            
-    error = 'Неверные данные'
-    return render_template('lab4/login.html', error=error, authorized=False)
+        
+    error = ''
+
+    if login == '':       
+        error = 'Введите логин!'
+    elif password == '':       
+        error = 'Введите пароль!'
+
+    return render_template('lab4/login.html', error=error, authorized=False, last_login=last_login)
 
 
 @lab4.route('/lab4/logout', methods = ['POST'])
