@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{# номер лабы #}
+{% block lab %}Лабораторная работа 4{% endblock%}
+
+{# основной контент#}
+{% block main %}
+    {% if checked %}
+        <div class="order">
+            <div>
+                Вы заказали {{ amount }}т. {{ seed }} на сумму {{ price }}&#8381;, ЙОУ!
+            </div>
+            {% if sale %}
+                Вам бахнули скидку в 10%!
+            {% endif %}
+            <div>
+                <img src="{{ url_for('static', filename='/lab4/7apA.gif') }}" alt="Tree" width="500" />
+            </div>
+            <div>
+                <a href="/lab4/seeds">Назад</a>
+            </div>
+        </div>
+    {% else %}
+        <form method="post" class="order">
+            <h1>Заказ зерна &#127806;</h1>
+            <label for="seeds">Выберете зерна</label>
+            <div>
+                <select name="seeds">
+                    <option value="ячмень" {{seed == 'ячмень' and 'selected'}}>ячмень</option>
+                    <option value="овес" {{seed == 'овес' and 'selected'}}>овес</option>
+                    <option value="пшеница" {{seed == 'пшеница' and 'selected'}}>пшеница</option>
+                    <option value="рожь" {{seed == 'рожь' and 'selected'}}>рожь</option>
+                </select>
+            </div>
+            <div>
+                <label for="amount">Введите количество зерна в тоннах!</label>
+            </div>
+            <div>
+            <input type="number" name="amount" placeholder="СКОЛЬКО!!?!?">
+            </div>
+            <button type="submit">Оформить заказ</button>
+            <div class="error">
+                {{error}}
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

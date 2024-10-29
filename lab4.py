@@ -158,3 +158,40 @@ def fridge():
         return render_template('/lab4/fridge.html', output=output, temp=temp, snowflakes=snowflakes)
 
     return render_template('/lab4/fridge.html', output=output, temp=temp, snowflakes=snowflakes)
+
+
+@lab4.route('/lab4/seeds', methods=['GET', 'POST'])
+def seeds():
+    error = ''
+    checked = False
+    sale = False
+    price = 0
+    seed = request.form.get('seeds')
+    amount = request.form.get('amount')
+    
+    if request.method == 'POST':
+        if amount == '':
+            error = 'Введите количество!'
+        elif int(amount) <= 0:
+            error = 'Количество должно быть положительным!'
+        elif int(amount) > 500:
+            error = 'Ну, у нас нет столько :('
+        elif seed == 'ячмень':
+            price = 12345 * int(amount)
+            checked = True
+        elif seed == 'овес':
+            price = 8522 * int(amount)
+            checked = True
+        elif seed == 'пшеница':
+            price = 8722 * int(amount)
+            checked = True
+        elif seed == 'рожь':
+            price = 14111 * int(amount)
+            checked = True
+    
+    if amount and int(amount) > 50:
+        sale = True
+        if sale:
+            price = price - price * 0.1
+    
+    return render_template('/lab4/seeds.html', error=error, checked=checked, price=price, seed=seed, amount=amount, sale=sale)
