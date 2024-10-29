@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 4{% endblock %}
+
+{% block main %}
+    <h1>Изменение данных пользователя</h1>
+    <form method="post" class="order">
+        <div>
+            <label for="name">Новое имя:</label>
+            <input type="text" id="name" name="name">
+        </div>
+        <div>
+            <label for="password">Новый пароль:</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <div>
+            <button type="submit">Сохранить изменения</button>
+        </div>
+        <div>
+            <a href="/lab4/login">Назад</a>
+        </div>
+    </form>
+{% endblock %}

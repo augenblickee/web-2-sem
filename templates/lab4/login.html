@@ -1,34 +1,54 @@
 {% extends "base.html" %}
 
-{# номер лабы #}
-{% block lab %}Лабораторная работа 4{% endblock%}
+{% block lab %}Лабораторная работа 4{% endblock %}
 
-{# основной контент#}
 {% block main %}
+<div class="main-container">
     {% if authorized %}
-        <h1>Добро пожаловать, {{ name }}</h1>
-        <div>
-            <form action="/lab4/logout" method="post">
-                <button>Выход</button>
+        <h1 class="title">Добро пожаловать, {{ name }}</h1>
+        <h2 class="subtitle">Список пользователей сайта:</h2>
+        <div class="user-list">
+            {% for user in users %}
+                <div class="user-item">
+                    <div class="user-info">
+                        <span class="user-name">{{ user.name }}</span>
+                        <span class="user-login">{{ user.login }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="action-buttons">
+            <form action="/lab4/logout" method="post" class="form-inline">
+                <button class="button">Выход</button>
+            </form>
+            <form action="/lab4/delete" method="post" class="form-inline">
+                <button class="button">Удалить моего пользователя</button>
+            </form>
+            <form action="/lab4/change" method="post" class="form-inline">
+                <button class="button">Изменить данные</button>
             </form>
         </div>
     {% else %}
-        <h1>Вход</h1>
-        <h2>Пожалуйста, авторизуйтесь</h2>
-        <form method="post" class="order">
-            <div>
+        <h1 class="title">Вход</h1>
+        <h2 class="subtitle">Пожалуйста, авторизуйтесь</h2>
+        <form method="post" class="form order-form">
+            <div class="form-group">
                 <label for="login">Пользователь:</label>
-                <input type="text" id="login" name="login" value='{{ last_login }}'>
+                <input type="text" id="login" name="login" value="{{ last_login }}" class="input-field">
             </div>
-            <div>
+            <div class="form-group">
                 <label for="password">Пароль:</label>
-                <input type="password" id="password" name="password">
+                <input type="password" id="password" name="password" class="input-field">
             </div>
-            <div class="error">{{ error }}</div>
-            <div>
-                <button type="submit">Войти</button>
-                <button type="reset">Отмена</button>
+            <div class="error-message">{{ error }}</div>
+            <div class="form-actions">
+                <button type="submit" class="button">Войти</button>
+                <button type="reset" class="button button-reset">Отмена</button>
+            </div>
+            <div class="register-link">
+                <a href="/lab4/register">Или зарегистрируйтесь</a>
             </div>
         </form>
     {% endif %}
+</div>
 {% endblock %}
