@@ -137,7 +137,7 @@ def fridge():
     snowflakes = 0
     temp = request.form.get('temp', '')
     output = ''
-    
+
     if request.method == 'POST':
         if 'reset' in request.form:
             return render_template('/lab4/fridge.html', output='', temp='', snowflakes=0)
@@ -159,3 +159,5 @@ def fridge():
             snowflakes = 1
 
         return render_template('/lab4/fridge.html', output=output, temp=temp, snowflakes=snowflakes)
+
+    return render_template('/lab4/fridge.html', output=output, temp=temp, snowflakes=snowflakes)
