@@ -235,16 +235,12 @@ def register():
         password = request.form.get('password')
         name = request.form.get('name')
 
-        # Проверка на уникальность логина
         if any(user['login'] == login for user in users):
             error = 'Пользователь с таким логином уже существует!'
             return render_template('lab4/register.html', error=error)
 
-        # Добавление нового пользователя в массив users
         users.append({'login': login, 'password': password, 'name': name, 'sex': 'not specified'})
         
-        # Перенаправление на страницу логина после успешной регистрации
         return redirect('/lab4/login')
 
-    # Рендеринг шаблона для GET-запроса
     return render_template('lab4/register.html')
