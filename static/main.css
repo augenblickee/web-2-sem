@@ -271,3 +271,53 @@ ul {
 .form-inline {
     display: inline;
 }
+
+.link-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.link-container a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 3px;
+}
+
+.link-container a:hover {
+    background-color: #e2e6ea;
+    color: #4CAF50;
+    text-decoration: underline;
+}
+
+.link-container div {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, background-color 0.3s ease;
+}
+
+.link-container div:hover {
+    background-color: #f1f1f1;
+    transform: scale(1.02);
+}
+
+.link-container div a {
+    color: #4CAF50;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.link-container div a:hover {
+    text-decoration: underline;
+}
