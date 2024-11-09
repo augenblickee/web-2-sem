@@ -37,24 +37,26 @@ def not_found(err):
 @app.route("/")
 @app.route("/index")
 def start():
+    css = url_for('static', filename='main.css')
     return '''
     <!doctype html>
     <html>
         <head>
             <title>НГТУ, ФБ, Лабораторные работы</title>
+            <link rel="stylesheet" href="''' + css + '''">
         </head>
         <body>
             <header>
                 <h1>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</h1>
             </header>
             <main>
-                <ul>
+                <ol>
                     <li><a href="/lab1">Первая лабораторная</a></li>
                     <li><a href="/lab2">Вторая лабораторная</a></li>
                     <li><a href="/lab3">Третья лабораторная</a></li>
                     <li><a href="/lab4">Четвертая лабораторная</a></li>
                     <li><a href="/lab5">Пятая лабораторная</a></li>
-                </ul>
+                </ol>
             </main>
             <footer>
                  &copy; Осягин Иван, ФБИ-22, 3 курс, 2024
