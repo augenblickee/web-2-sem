@@ -18,7 +18,11 @@
             <a href="/lab5/create">Создать статью</a>
         </div>
         <div>
-            Аноним
+            {% if login %}
+                {{ login }}
+            {% else %}
+                Анонимус
+            {% endif %}
         </div>
     </div>
 {% endblock %}
