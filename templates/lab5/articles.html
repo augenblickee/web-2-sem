@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 5{% endblock %}
+
+{% block main %}
+    <div class="article-container">
+        <h1>Мои статьи</h1>
+
+        {% for article in articles %}
+            <h2 class="article-title">{{ article['title'] }}</h2>
+            <blockquote class="article-text">{{ article['article_text'] }}</blockquote>
+        {% endfor %}
+        <a href="/lab5/">Назад</a>
+    </div>
+
+{% endblock %}
