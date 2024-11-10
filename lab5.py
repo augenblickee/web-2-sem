@@ -113,6 +113,9 @@ def create():
     title = request.form.get('title')
     article_text = request.form.get('article_text')
 
+    if not (title and article_text):
+        return render_template('/lab5/create_article.html', error='Введите текст и название статьи!')
+
     conn, cur = db_connect()
 
     if current_app.config['DB_TYPE'] == 'postgres':
@@ -155,3 +158,8 @@ def list():
     db_close(conn, cur)
 
     return render_template('/lab5/articles.html', articles=articles)
+
+@lab5.route('/lab5/logout')
+def logout():
+    session.pop('login', None)
+    return redirect('/lab5/login')
