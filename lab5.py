@@ -149,7 +149,7 @@ def list():
     if current_app.config['DB_TYPE'] == 'postgres':
         cur.execute("SELECT * FROM articles WHERE user_id=%s;", (login_id, ))
     else:
-        cur.execute("SELECT * FROM articles WHERE user_id=?;", (login_id, ))
+        cur.execute("SELECT * FROM articles WHERE login_id=?;", (login_id, ))
     articles = cur.fetchall()
 
     db_close(conn, cur)
