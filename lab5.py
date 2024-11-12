@@ -256,7 +256,11 @@ def favorite(article_id):
         cur.execute("SELECT id FROM users WHERE login = ?;", (login,))
     user_id = cur.fetchone()['id']
 
-    cur.execute("SELECT * FROM articles WHERE id = %s;", (article_id,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT * FROM articles WHERE id = %s;", (article_id,))
+    else:
+        cur.execute("SELECT * FROM articles WHERE id = ?;", (article_id,))
+
     article = cur.fetchone()
 
     if article:
