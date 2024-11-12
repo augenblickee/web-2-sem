@@ -48,11 +48,20 @@
 
                     <!-- Кнопка удаления только для создателя статьи -->
                     {% if session.get('login_id') %}
-                        {% if article['user_id'] == session['login_id'] %}
-                            <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
-                            <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
-                                <button type="submit" class="btn btn-delete">Удалить</button>
-                            </form>
+                        {% if sqllite %}
+                            {% if article['login_id'] == session['login_id'] %}
+                                <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
+                                <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-delete">Удалить</button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            {% if article['user_id'] == session['login_id'] %}
+                                <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
+                                <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-delete">Удалить</button>
+                                </form>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </div>

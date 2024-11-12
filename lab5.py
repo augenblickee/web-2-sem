@@ -139,6 +139,8 @@ def list():
     
     conn, cur = db_connect()
 
+    sqllite = False
+
     user_id = None
     if login:
         # Получаем user_id
@@ -146,6 +148,8 @@ def list():
             cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
         else:
             cur.execute("SELECT id FROM users WHERE login = ?;", (login,))
+            sqllite = True
+
         user = cur.fetchone()
         user_id = user['id'] if user else None
 
@@ -190,7 +194,7 @@ def list():
 
     db_close(conn, cur)
 
-    return render_template('/lab5/articles.html', articles=articles, filter_type='all')
+    return render_template('/lab5/articles.html', articles=articles, filter_type='all', sqllite=sqllite)
 
 
 
