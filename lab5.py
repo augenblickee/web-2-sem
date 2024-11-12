@@ -65,7 +65,7 @@ def register():
     else:
         cur.execute("INSERT INTO users (login, password) VALUES (?, ?);", (login, password_hash))
     db_close(conn, cur)
-    return render_template('lab5/succses.html', login=login)
+    return render_template('lab5/login.html', login=login)
 
 
 @lab5.route('/lab5/login', methods=['GET', 'POST'])
@@ -82,23 +82,21 @@ def login():
     conn, cur = db_connect()
 
     if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT * FROM users WHERE login=%s;", (login, ))
+        cur.execute("SELECT * FROM users WHERE login=%s;", (login,))
     else:
-        cur.execute("SELECT * FROM users WHERE login=?;", (login, ))
+        cur.execute("SELECT * FROM users WHERE login=?;", (login,))
 
     user = cur.fetchone()
 
-    if not user:
-        db_close(conn, cur)
-        return render_template('lab5/login.html', error="Пользователь и/или пароль введены неверно!")
-    
-    if not check_password_hash(user['password'], password):
+    if not user or not check_password_hash(user['password'], password):
         db_close(conn, cur)
         return render_template('lab5/login.html', error="Пользователь и/или пароль введены неверно!")
     
     session['login'] = login
+    session['login_id'] = user['id']  
     db_close(conn, cur)
     return render_template('lab5/success_login.html', login=login)
+
 
 
 @lab5.route('/lab5/create', methods=['GET', 'POST'])
@@ -135,48 +133,53 @@ def create():
     return redirect('/lab5')
 
 
-@lab5.route('/lab5/list', methods=['GET'])
-def list_articles():
+@lab5.route('/lab5/list')
+def list():
     login = session.get('login')
-    if not login:
-        return redirect('/lab5/login')
     
-    filter_type = request.args.get('filter', 'all')  
-
     conn, cur = db_connect()
 
+    user_id = None
+    if login:
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
+        else:
+            cur.execute("SELECT id FROM users WHERE login = ?;", (login,))
+        user = cur.fetchone()
+        user_id = user['id'] if user else None
 
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT id FROM users WHERE login=%s;", (login,))
+    query = """
+        SELECT articles.*, users.login as creator_login 
+        FROM articles 
+        JOIN users ON articles.user_id = users.id
+    """
+    conditions = []
+    params = []
+
+    if login:
+        conditions.append("(articles.is_public = TRUE OR articles.user_id = %s)")
+        params.append(user_id)
     else:
-        cur.execute("SELECT id FROM users WHERE login=?;", (login,))
-    login_id = cur.fetchone()['id']
+        conditions.append("articles.is_public = TRUE")
 
-    if filter_type == 'public':
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("SELECT * FROM articles WHERE is_public = TRUE;")
-        else:
-            cur.execute("SELECT * FROM articles WHERE is_public = 1;")
-    elif filter_type == 'private':
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("SELECT * FROM articles WHERE user_id=%s AND is_public = FALSE;", (login_id,))
-        else:
-            cur.execute("SELECT * FROM articles WHERE login_id=? AND is_public = 0;", (login_id,))
-    else:  # Show all articles (public + user's private)
-        if current_app.config['DB_TYPE'] == 'postgres':
-            cur.execute("SELECT * FROM articles WHERE is_public = TRUE OR user_id=%s;", (login_id,))
-        else:
-            cur.execute("SELECT * FROM articles WHERE is_public = 1 OR login_id=?;", (login_id,))
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
     
+    query += " ORDER BY articles.is_favorite DESC, articles.id DESC;"
+
+    cur.execute(query, tuple(params) if params else ())
     articles = cur.fetchall()
+
     db_close(conn, cur)
 
-    return render_template('/lab5/articles.html', articles=articles, filter_type=filter_type)
+    return render_template('/lab5/articles.html', articles=articles, filter_type='all')
+
 
 
 
 @lab5.route('/lab5/logout')
 def logout():
+    session.pop('login_id', None)
     session.pop('login', None)
     return redirect('/lab5/login')
 
@@ -221,28 +224,27 @@ def edit_article(article_id):
 
 
 @lab5.route('/lab5/favorite/<int:article_id>', methods=['POST'])
-def favorite_article(article_id):
+def favorite(article_id):
     login = session.get('login')
     if not login:
         return redirect('/lab5/login')
-    
+
     conn, cur = db_connect()
 
     if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("SELECT * FROM articles WHERE id=%s;", (article_id,))
+        cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
     else:
-        cur.execute("SELECT * FROM articles WHERE id=?;", (article_id,))
+        cur.execute("SELECT id FROM users WHERE login = ?;", (login,))
+    user_id = cur.fetchone()['id']
 
+    cur.execute("SELECT * FROM articles WHERE id = %s;", (article_id,))
     article = cur.fetchone()
-    if not article:
-        db_close(conn, cur)
-        return redirect('/lab5/list')
 
-    new_favorite_status = not article['is_favorite']
-    if current_app.config['DB_TYPE'] == 'postgres':
-        cur.execute("UPDATE articles SET is_favorite=%s WHERE id=%s;", (new_favorite_status, article_id))
-    else:
-        cur.execute("UPDATE articles SET is_favorite=? WHERE id=?;", (new_favorite_status, article_id))
+    if article:
+        if article['is_favorite'] == False:
+            cur.execute("UPDATE articles SET is_favorite = TRUE WHERE id = %s;", (article_id,))
+        else:
+            cur.execute("UPDATE articles SET is_favorite = FALSE WHERE id = %s;", (article_id,))
 
     db_close(conn, cur)
     return redirect('/lab5/list')
@@ -260,3 +262,27 @@ def list_users():
     users = cur.fetchall()
     db_close(conn, cur)
     return render_template('/lab5/users.html', users=users)
+
+
+@lab5.route('/lab5/delete/<int:article_id>', methods=['POST'])
+def delete(article_id):
+    login = session.get('login')
+    if not login:
+        return redirect('/lab5/login')
+
+    conn, cur = db_connect()
+
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
+    else:
+        cur.execute("SELECT id FROM users WHERE login = ?;", (login,))
+    user_id = cur.fetchone()['id']
+
+    cur.execute("SELECT * FROM articles WHERE id = %s;", (article_id,))
+    article = cur.fetchone()
+
+    if article and article['user_id'] == user_id:
+        cur.execute("DELETE FROM articles WHERE id = %s;", (article_id,))
+    
+    db_close(conn, cur)
+    return redirect('/lab5/list')

@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 
 {% block main %}
-    <h1>Мои и Публичные Статьи</h1>
+    <h1>Статьи</h1>
 
     <div class="filter-options">
         <form method="get" action="/lab5/list">
             <label for="filter">Фильтр:</label>
-            <select name="filter" id="filter" onchange="this.form.submit()">
-                <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Все</option>
-                <option value="public" {% if filter_type == 'public' %}selected{% endif %}>Публичные</option>
-                <option value="private" {% if filter_type == 'private' %}selected{% endif %}>Личные</option>
-            </select>
+            {% if session.get('login_id') %}
+                <select name="filter" id="filter" onchange="this.form.submit()">
+                    <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Все</option>
+                    <option value="public" {% if filter_type == 'public' %}selected{% endif %}>Публичные</option>
+                    <option value="private" {% if filter_type == 'private' %}selected{% endif %}>Личные</option>
+                </select>
+            {% endif %}
         </form>
     </div>
 
@@ -20,13 +22,39 @@
                 <h2 class="article-title">{{ article['title'] }}</h2>
                 <blockquote class="article-text">{{ article['article_text'] }}</blockquote>
                 <div class="article-meta">
-                    <p>Публичная: {{ article['is_public'] }}</p>
+                    {% if article['is_public'] %}
+                        <p>Публичная</p>
+                    {% else %}
+                        <p>Личная</p>
+                    {% endif %}
+                    <p>Автор: {{ article['creator_login'] }}</p> <!-- Display the creator's username -->
+                    {% if article['is_favorite'] %}
+                        <p>Любимая статья</p>
+                    {% endif %}
                 </div>
                 <div class="article-actions">
-                    <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
-                    <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-delete" onclick="return confirm('Вы уверены, что хотите удалить эту статью?');">Удалить</button>
-                    </form>
+                    <!-- Добавляем кнопку для добавления в избранное -->
+                    {% if session.get('login_id') %}
+                        <form action="/lab5/favorite/{{ article['id'] }}" method="post">
+                            <button type="submit" class="btn btn-favorite">
+                                {% if article['is_favorite'] %}
+                                    Убрать из избранного
+                                {% else %}
+                                    Добавить в избранное
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <!-- Кнопка удаления только для создателя статьи -->
+                    {% if session.get('login_id') %}
+                        {% if article['user_id'] == session['login_id'] %}
+                            <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
+                            <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-delete">Удалить</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
