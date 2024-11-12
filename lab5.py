@@ -162,7 +162,7 @@ def list():
         if current_app.config['DB_TYPE'] == 'postgres':
             conditions.append("(articles.is_public = TRUE OR articles.user_id = %s)")
         else:
-            conditions.append("(articles.is_public = TRUE OR articles.user_id = ?)")
+            conditions.append("(articles.is_public = TRUE OR articles.login_id = ?)")
         params.append(user_id)
     else:
         conditions.append("articles.is_public = TRUE")
