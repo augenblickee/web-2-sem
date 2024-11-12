@@ -141,6 +141,7 @@ def list():
 
     user_id = None
     if login:
+        # Получаем user_id
         if current_app.config['DB_TYPE'] == 'postgres':
             cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
         else:
@@ -157,6 +158,7 @@ def list():
     params = []
 
     if login:
+        # Добавляем условие для фильтрации публичных и личных статей
         if current_app.config['DB_TYPE'] == 'postgres':
             conditions.append("(articles.is_public = TRUE OR articles.user_id = %s)")
         else:
@@ -168,14 +170,21 @@ def list():
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
     
+    # Сортировка по избранным статьям
     query += " ORDER BY articles.is_favorite DESC, articles.id DESC;"
 
-    cur.execute(query, tuple(params) if params else ())
+    # Выполняем запрос с параметрами
+    if current_app.config['DB_TYPE'] == 'postgres':
+        cur.execute(query, tuple(params) if params else ())
+    else:
+        cur.execute(query, tuple(params) if params else ())
+
     articles = cur.fetchall()
 
     db_close(conn, cur)
 
     return render_template('/lab5/articles.html', articles=articles, filter_type='all')
+
 
 
 
