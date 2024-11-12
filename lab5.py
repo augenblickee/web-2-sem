@@ -267,11 +267,18 @@ def favorite(article_id):
 
     article = cur.fetchone()
 
-    if article:
-        if article['is_favorite'] == False:
-            cur.execute("UPDATE articles SET is_favorite = TRUE WHERE id = %s;", (article_id,))
-        else:
-            cur.execute("UPDATE articles SET is_favorite = FALSE WHERE id = %s;", (article_id,))
+    if current_app.config['DB_TYPE'] == 'postgres':
+        if article:
+            if article['is_favorite'] == False:
+                cur.execute("UPDATE articles SET is_favorite = TRUE WHERE id = %s;", (article_id,))
+            else:
+                cur.execute("UPDATE articles SET is_favorite = FALSE WHERE id = %s;", (article_id,))
+    else:
+        if article:
+            if article['is_favorite'] == False:
+                cur.execute("UPDATE articles SET is_favorite = TRUE WHERE id = ?;", (article_id,))
+            else:
+                cur.execute("UPDATE articles SET is_favorite = FALSE WHERE id = ?;", (article_id,))
 
     db_close(conn, cur)
     return redirect('/lab5/list')
