@@ -1,20 +1,37 @@
 {% extends "base.html" %}
 
-{% block lab %}Лабораторная работа 5{% endblock %}
-
 {% block main %}
-    <div class="article-container">
-        <h1>Мои статьи</h1>
-        {% if articles %}
-            {% for article in articles %}
-                <h2 class="article-title">{{ article['title'] }}</h2>
-                <blockquote class="article-text">{{ article['article_text'] }}</blockquote>
-            {% endfor %}
-        {% else %}
-        <h2 class="article-title">У вас пока нет статей!</h2>
-        <blockquote class="article-text">Но можете создать <a href="/lab5/create">тут</a>!</blockquote>
-        {% endif %}
-        <a href="/lab5/">Назад</a>
+    <h1>Мои и Публичные Статьи</h1>
+
+    <div class="filter-options">
+        <form method="get" action="/lab5/list">
+            <label for="filter">Фильтр:</label>
+            <select name="filter" id="filter" onchange="this.form.submit()">
+                <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Все</option>
+                <option value="public" {% if filter_type == 'public' %}selected{% endif %}>Публичные</option>
+                <option value="private" {% if filter_type == 'private' %}selected{% endif %}>Личные</option>
+            </select>
+        </form>
     </div>
 
+    {% if articles %}
+        {% for article in articles %}
+            <div class="article">
+                <h2 class="article-title">{{ article['title'] }}</h2>
+                <blockquote class="article-text">{{ article['article_text'] }}</blockquote>
+                <div class="article-meta">
+                    <p>Публичная: {{ article['is_public'] }}</p>
+                </div>
+                <div class="article-actions">
+                    <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
+                    <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-delete" onclick="return confirm('Вы уверены, что хотите удалить эту статью?');">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Нет доступных статей.</p>
+    {% endif %}
+    <a href="/lab5/">Назад</a>
 {% endblock %}
