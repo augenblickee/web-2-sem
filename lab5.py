@@ -149,11 +149,18 @@ def list():
         user = cur.fetchone()
         user_id = user['id'] if user else None
 
-    query = """
-        SELECT articles.*, users.login as creator_login 
-        FROM articles 
-        JOIN users ON articles.user_id = users.id
-    """
+    if current_app.config['DB_TYPE'] == 'postgres':
+        query = """
+            SELECT articles.*, users.login as creator_login 
+            FROM articles 
+            JOIN users ON articles.user_id = users.id
+        """
+    else:
+        query = """
+            SELECT articles.*, users.login as creator_login 
+            FROM articles 
+            JOIN users ON articles.login_id = users.id
+        """
     conditions = []
     params = []
 
