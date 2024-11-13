@@ -47,7 +47,7 @@
 
                     {% if session.get('login_id') %}
                         {% if sqllite %}
-                            {% if article['login_id'] == session['login_id'] %}
+                            {% if article['login_id'] == session['login_id'] or  is_admin%}
                                 <a href="/lab5/edit/{{ article['id'] }}" class="btn btn-edit">Редактировать</a>
                                 <form action="/lab5/delete/{{ article['id'] }}" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-delete">Удалить</button>
