@@ -140,7 +140,10 @@ def list():
     conn, cur = db_connect()
 
     sqllite = False
+    is_admin = False
 
+    if login == 'admin':
+        is_admin = True
     user_id = None
     if login:
         # Получаем user_id
@@ -194,7 +197,7 @@ def list():
 
     db_close(conn, cur)
 
-    return render_template('/lab5/articles.html', articles=articles, filter_type='all', sqllite=sqllite)
+    return render_template('/lab5/articles.html', articles=articles, filter_type='all', sqllite=sqllite, is_admin=is_admin)
 
 
 
