@@ -348,3 +348,56 @@ ul {
     color: #666;
     word-wrap: break-word;
 }
+
+/* Стили для списка офисов */
+#office-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#office-list li {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    justify-content: space-between;
+}
+
+#office-list li span {
+    font-weight: bold;
+}
+
+#office-list li button {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#office-list li button:first-of-type {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#office-list li button:last-of-type {
+    background-color: #f44336;
+    color: white;
+}
+
+#office-list li button:hover {
+    opacity: 0.8;
+}
+
+/* Стили для отображения арендной платы */
+#mountly-price {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e7f3fe;
+    border: 1px solid #b8daff;
+    border-radius: 5px;
+    font-weight: bold;
+    color: #004085;
+}
