@@ -4,6 +4,9 @@
 
 {% block script %}
     <script>
+        let mounthlyPriceCounter = 0;
+        let currentUser = null;
+
         function getOfficeList() {
             const url = '/lab6/json-rpc-api/';
             const json = {
@@ -21,10 +24,14 @@
                 const office_list = data.result;
                 const ul = document.getElementById('office-list');
                 ul.innerHTML = '';
+                mounthlyPriceCounter = 0; 
                 office_list.forEach(office => {
                     const li = document.createElement('li');
                     if (office.tenant) {
                         li.innerText = `${office.number}: Занят`;
+                        if (office.tenant === currentUser) {
+                            mounthlyPriceCounter += office.price; 
+                        }
                     } else {
                         li.innerText = `${office.number}: Свободен`;
                     }
@@ -38,8 +45,13 @@
                         cancelButton.onclick = () => cancelBooking(office.number);
                         li.appendChild(cancelButton);
                     }
+                    const price = document.createElement('span');
+                    price.innerText = `${office.price} Руб./мес.`;
+                    li.appendChild(price);
                     ul.appendChild(li);
                 });
+                const mountly_price = document.getElementById('mountly-price');
+                mountly_price.innerHTML = `Ваша арендная плата: ${mounthlyPriceCounter} Руб./мес.`;
             });
         }
 
@@ -105,16 +117,20 @@
                             alert('Странная ошибка');
                     }
                 } else {
-                    getOfficeList();
+                    getOfficeList(); 
                 }
             });
         }
 
-        document.addEventListener('DOMContentLoaded', getOfficeList);
+        document.addEventListener('DOMContentLoaded', () => {
+            currentUser = '{{ session.get("login") }}'; 
+            getOfficeList();
+        });
     </script>
 {% endblock %}
 
 {% block main %}
     <h1>Список кабинетов</h1>
     <ul id="office-list"></ul>
+    <div id="mountly-price"></div>
 {% endblock %}
