@@ -51,7 +51,12 @@
                     ul.appendChild(li);
                 });
                 const mountly_price = document.getElementById('mountly-price');
-                mountly_price.innerHTML = `Ваша арендная плата: ${mounthlyPriceCounter} Руб./мес.`;
+                if(currentUser != 'None') {
+                    mountly_price.innerHTML = `Здравствуйте, ${currentUser}! Ваша арендная плата: ${mounthlyPriceCounter} Руб./мес.`;
+                }
+                else{
+                    mountly_price.innerHTML = 'Здравствуйте, анонимус!'
+                }
             });
         }
 
@@ -130,7 +135,9 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Список кабинетов</h1>
+    <h1>Список офисов</h1>
     <ul id="office-list"></ul>
     <div id="mountly-price"></div>
+    <a href="/lab5/login">Вход</a>
+    <a href="/lab5/register">Регистрация</a>
 {% endblock %}

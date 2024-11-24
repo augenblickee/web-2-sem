@@ -378,12 +378,12 @@ ul {
 }
 
 #office-list li button:first-of-type {
-    background-color: #4CAF50;
+    background-color: #f44336;
     color: white;
 }
 
 #office-list li button:last-of-type {
-    background-color: #f44336;
+    background-color: #4CAF50;
     color: white;
 }
 
