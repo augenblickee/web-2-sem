@@ -28,7 +28,7 @@
                 office_list.forEach(office => {
                     const li = document.createElement('li');
                     if (office.tenant) {
-                        li.innerText = `${office.number}: Занят`;
+                        li.innerText = `${office.number}: Занят ${office.tenant}`;
                         if (office.tenant === currentUser) {
                             mounthlyPriceCounter += office.price; 
                         }
