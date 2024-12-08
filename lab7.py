@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, request
 from random import randint
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import sqlite3
 from os import path
+
 
 lab7 = Blueprint('lab7', __name__)
 
@@ -74,3 +75,11 @@ def del_film(id):
         return '', 204
 
 
+@lab7.route('/lab7/rest-api/films/<int:id>', methods=['PUT'])
+def put_film(id):
+    if id >= len(films):
+        return abort(404)
+    else:
+        film = request.get_json()
+        films[id] = film
+        return films[id]
