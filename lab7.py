@@ -81,8 +81,19 @@ def put_film(id):
         return abort(404)
     else:
         film = request.get_json()
-        if film['description'] == '':
+        if not film['title_ru'] and not film['title']:
+            return {'description': 'Напишите название'}, 400
+        elif not film['title_ru']:
+            return {'description': 'Напишите русское название'}, 400
+        elif not (2024 >= int(film['year']) >= 1895) or film['year'] == '':
+            return {'description': 'Дата введена некорректно'}, 400
+        elif film['description'] == '':
             return {'description': 'Заполните описание'}, 400
+        elif len(film['description']) > 2000:
+            return {'description': 'Максимальная длинна описания - 2000 символов'}, 400
+    
+        if film['title_ru'] and not film['title']:
+            film['title'] = film['title_ru']
         films[id] = film
         return films[id]
     
@@ -91,10 +102,20 @@ def put_film(id):
 def add_film():
     film = request.get_json() 
     if not film or not all(k in film for k in ('title', 'title_ru', 'year', 'description')):
-        return abort(400, "Invalid film data")  
-    if film['description'] == '':
-        return {'description': 'Заполните описание'}, 400
-    if film['title_ru'] and not film['title']:
-        film['title'] = film['title_ru']
-    films.append(film) 
-    return {'id': len(films) - 1}, 201  
+        return abort(400, "Invalid film data") 
+    else:
+        if not film['title_ru'] and not film['title']:
+            return {'description': 'Напишите название'}, 400
+        elif not film['title_ru']:
+            return {'description': 'Напишите русское название'}, 400
+        elif not (2024 >= int(film['year']) >= 1895) or film['year'] == '':
+            return {'description': 'Дата введена некорректно'}, 400
+        elif film['description'] == '':
+            return {'description': 'Заполните описание'}, 400
+        elif len(film['description']) > 2000:
+            return {'description': 'Максимальная длинна описания - 2000 символов'}, 400
+        
+        if film['title_ru'] and not film['title']:
+            film['title'] = film['title_ru']
+        films.append(film) 
+        return {'id': len(films) - 1}, 201  
