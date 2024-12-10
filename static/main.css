@@ -432,7 +432,7 @@ ul {
 
 /* Кнопки внутри модального окна */
 .modal button {
-    background-color: #007BFF; /* Синий цвет */
+    background-color: #28a745; /* Синий цвет */
     color: white; /* Белый текст */
     border: none; /* Без рамки */
     border-radius: 4px; /* Скругленные углы */
@@ -443,7 +443,7 @@ ul {
 }
 
 .modal button:hover {
-    background-color: #0056b3; /* Темнее при наведении */
+    background-color: #106921; /* Темнее при наведении */
 }
 
 .modal .error-message {
