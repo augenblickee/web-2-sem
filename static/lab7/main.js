@@ -13,7 +13,8 @@ function fillFilmList() {
             let tdTitleRus = document.createElement('td');
             let tdYear = document.createElement('td');
             let tdActions = document.createElement('td');
-            
+            let tdid = document.createElement('td');
+            tdid.innerText = films[i].id
             tdTitle.innerText = films[i].title == films[i].title_ru ? '' : films[i].title;
             if (tdTitle.innerText)
                 tdTitle.innerText = '(' + tdTitle.innerText + ')'
@@ -24,18 +25,19 @@ function fillFilmList() {
             let editButton = document.createElement('button');
             editButton.innerText = 'редактировать';
             editButton.onclick = function() {
-                editFilm(i);
+                editFilm(films[i].id);
             };
 
             let delButton = document.createElement('button');
             delButton.innerText = 'удалить';
             delButton.onclick = function() {
-                deleteFilm(i, films[i].title_ru);
+                deleteFilm(films[i].id, films[i].title_ru);
             };
 
             tdActions.append(editButton);
             tdActions.append(delButton);
 
+            tr.append(tdid);
             tr.append(tdTitleRus);
             tr.append(tdTitle);
             tr.append(tdYear);
