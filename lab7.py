@@ -94,5 +94,7 @@ def add_film():
         return abort(400, "Invalid film data")  
     if film['description'] == '':
         return {'description': 'Заполните описание'}, 400
+    if film['title_ru'] and not film['title']:
+        film['title'] = film['title_ru']
     films.append(film) 
     return {'id': len(films) - 1}, 201  
