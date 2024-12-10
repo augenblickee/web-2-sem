@@ -83,3 +83,13 @@ def put_film(id):
         film = request.get_json()
         films[id] = film
         return films[id]
+    
+
+@lab7.route('/lab7/rest-api/films/', methods=['POST'])
+def add_film():
+    film = request.get_json() 
+    if not film or not all(k in film for k in ('title', 'title_ru', 'year', 'description')):
+        return abort(400, "Invalid film data")  
+    
+    films.append(film) 
+    return {'id': len(films) - 1}, 201  
