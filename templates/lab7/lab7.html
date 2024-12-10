@@ -5,29 +5,13 @@
 {% block script %}
 <script src="{{ url_for('static', filename='lab7/main.js') }}"></script>
 <style>
-    .modal {
-        display: none;
-        z-index: 100;
-        box-shadow: 3px 3px 5px black;
-        background: white;
-        width: 400px;
-        left: 50%;
-        top: 220px;
-        margin-left: -200px;
-        position: absolute;
-        padding: 20px;
-    }
-
-    .error-message {
-        color: red;
-    }
 </style>
 {% endblock %}
 
 {% block main %}
     <h1>Фильмы</h1>
 
-    <table>
+    <table class="table7">
         <thead>
             <tr>
                 <th colspan="2">Название</th>

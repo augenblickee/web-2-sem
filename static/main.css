@@ -401,3 +401,120 @@ ul {
     font-weight: bold;
     color: #004085;
 }
+
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; /* Фиксированное положение */
+    z-index: 100; /* Отображение поверх других элементов */
+    top: 50%; /* Центровка по вертикали */
+    left: 50%; /* Центровка по горизонтали */
+    transform: translate(-50%, -50%); /* Смещение для абсолютного центрирования */
+    width: 400px; /* Ширина окна */
+    max-width: 90%; /* Адаптация к меньшим экранам */
+    background: #fff; /* Белый фон */
+    border-radius: 8px; /* Скругленные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+    padding: 20px; /* Отступ внутри окна */
+    box-sizing: border-box; /* Учет padding в размерах */
+}
+
+/* Затемнение фона при отображении модального окна */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw; /* Полный экран */
+    height: 100vh; /* Полный экран */
+    background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон */
+    z-index: 99; /* Ниже модального окна */
+    display: none; /* Скрыто по умолчанию */
+}
+
+/* Кнопки внутри модального окна */
+.modal button {
+    background-color: #007BFF; /* Синий цвет */
+    color: white; /* Белый текст */
+    border: none; /* Без рамки */
+    border-radius: 4px; /* Скругленные углы */
+    padding: 10px 20px; /* Отступы */
+    cursor: pointer; /* Указатель при наведении */
+    font-size: 14px; /* Размер текста */
+    margin: 5px; /* Отступы между кнопками */
+}
+
+.modal button:hover {
+    background-color: #0056b3; /* Темнее при наведении */
+}
+
+.modal .error-message {
+    color: red; /* Красный цвет для сообщений об ошибках */
+    font-size: 12px; /* Меньший шрифт */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+.table7 {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table7 thead {
+    background-color: red;
+    color: #fff;
+}
+
+.table7 thead th {
+    padding: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid black;
+}
+
+.table7 tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.table7 tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table7 td {
+    padding: 10px;
+}
+
+.table7 td:first-child {
+    border-left: none;
+}
+
+/* .table7 td:last-child {
+    text-align: center;
+} */
+
+.table7 button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 2px;
+}
+
+.table7 button:hover {
+    background-color: #218838;
+}
+
+.table7 button.delete {
+    background-color: #dc3545;
+}
+
+.table7 button.delete:hover {
+    background-color: #c82333;
+}
