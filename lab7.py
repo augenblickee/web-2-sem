@@ -28,6 +28,10 @@ def db_close(conn, cur):
     cur.close()
     conn.close()
 
+def rows_to_dicts(rows):
+    """Convert sqlite3.Row objects to dictionaries."""
+    return [dict(row) for row in rows]
+
 @lab7.route('/lab7/')
 def lab():
     return render_template('/lab7/lab7.html')
@@ -38,6 +42,8 @@ def get_films():
     cur.execute("SELECT * FROM films ORDER BY id")
     films = cur.fetchall()
     db_close(conn, cur)
+    if current_app.config['DB_TYPE'] != 'postgres':
+        films = rows_to_dicts(films)
     return films
 
 @lab7.route('/lab7/rest-api/films/<int:id>', methods=['GET'])
@@ -49,6 +55,8 @@ def get_film(id):
         cur.execute("SELECT * FROM films WHERE id = ?", (id,))
     film = cur.fetchone()
     db_close(conn, cur)
+    if current_app.config['DB_TYPE'] != 'postgres' and film:
+        film = dict(film)
     if not film:
         return abort(404)
     return film
@@ -59,9 +67,11 @@ def del_film(id):
     if current_app.config['DB_TYPE'] == 'postgres':
         cur.execute("DELETE FROM films WHERE id = %s RETURNING id", (id,))
     else:
-        cur.execute("DELETE FROM films WHERE id = ? RETURNING id", (id,))
+        cur.execute("DELETE FROM films WHERE id = ?", (id,))
     deleted = cur.fetchone()
     db_close(conn, cur)
+    if current_app.config['DB_TYPE'] != 'postgres' and deleted:
+        deleted = dict(deleted)
     if not deleted:
         return abort(404)
     return '', 204
@@ -71,9 +81,9 @@ def put_film(id):
     film = request.get_json()
     if not film or not all(k in film for k in ('title', 'title_ru', 'year', 'description')):
         return {'description': 'Некорректные данные'}, 400
-    
+
     if not film['title_ru'] and not film['title']:
-            return {'description': 'Напишите название'}, 400
+        return {'description': 'Напишите название'}, 400
     elif not film['title_ru']:
         return {'description': 'Напишите русское название'}, 400
     elif not (2024 >= int(film['year']) >= 1895) or film['year'] == '':
@@ -98,12 +108,15 @@ def put_film(id):
         cur.execute(
             """
             UPDATE films SET title = ?, title_ru = ?, year = ?, description = ?
-            WHERE id = ? RETURNING id
+            WHERE id = ?
             """,
             (film['title'], film['title_ru'], film['year'], film['description'], id)
         )
+        cur.execute("SELECT id FROM films WHERE id = ?", (id,))
     updated = cur.fetchone()
     db_close(conn, cur)
+    if current_app.config['DB_TYPE'] != 'postgres' and updated:
+        updated = dict(updated)
     if not updated:
         return abort(404)
     return film
@@ -113,7 +126,7 @@ def add_film():
     film = request.get_json()
     if not film or not all(k in film for k in ('title', 'title_ru', 'year', 'description')):
         return {'description': 'Некорректные данные'}, 400
-    
+
     if not film['title_ru'] and not film['title']:
         return {'description': 'Напишите название'}, 400
     elif not film['title_ru']:
@@ -124,7 +137,7 @@ def add_film():
         return {'description': 'Заполните описание'}, 400
     elif len(film['description']) > 2000:
         return {'description': 'Максимальная длинна описания - 2000 символов'}, 400
-    
+
     if film['title_ru'] and not film['title']:
         film['title'] = film['title_ru']
     conn, cur = db_connect()
@@ -141,10 +154,13 @@ def add_film():
         cur.execute(
             """
             INSERT INTO films (title, title_ru, year, description)
-            VALUES (?, ?, ?, ?) RETURNING id
+            VALUES (?, ?, ?, ?)
             """,
             (film['title'], film['title_ru'], film['year'], film['description'])
         )
-    new_id = cur.fetchone()['id']
+        cur.execute("SELECT last_insert_rowid() AS id")
+    new_id = cur.fetchone()
     db_close(conn, cur)
-    return {'id': new_id}, 201
+    if current_app.config['DB_TYPE'] != 'postgres' and new_id:
+        new_id = dict(new_id)
+    return {'id': new_id['id']}, 201
