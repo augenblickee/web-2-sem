@@ -29,7 +29,7 @@ def db_close(conn, cur):
     conn.close()
 
 def rows_to_dicts(rows):
-    """Convert sqlite3.Row objects to dictionaries."""
+    #sqlite3 передает в конект роу формат, а апи с ним не работает, переделал в словарик
     return [dict(row) for row in rows]
 
 @lab7.route('/lab7/')
