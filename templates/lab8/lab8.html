@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 8{% endblock %}
+
+{% block main %}
+    <h1>База</h1>
+    <div class="link-container">
+        <div>
+            <a href="/lab8/login">Вход</a>
+        </div>
+        <div>
+            <a href="/lab8/register">Регистрация</a>
+        </div>
+        <div>
+            <a href="/lab8/articles">Список статей</a>
+        </div>
+        <div>
+            <a href="/lab8/create">Создать статью</a>
+        </div>
+        <div>
+            {% if login %}
+                {{ login }}
+            {% else %}
+                Анонимус
+            {% endif %}
+        </div>
+    </div>
+
+    <div>
+        <a href="/lab8/logout">Выйти</a>
+    </div>
+{% endblock %}
