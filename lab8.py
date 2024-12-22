@@ -2,13 +2,17 @@ from flask import Blueprint, render_template, abort, request, current_app, redir
 from werkzeug.security import check_password_hash, generate_password_hash
 from db import db
 from db.models import users, articles
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user, logout_user
 
 lab8 = Blueprint('lab8', __name__)
 
 @lab8.route('/lab8/')
 def lab():
-    return render_template('/lab8/lab8.html')
+    if current_user.is_authenticated:
+        user = current_user.login
+    else:
+        user = 'Анонимус' 
+    return render_template('/lab8/lab8.html', user=user)
 
 @lab8.route('/lab8/register', methods = ['GET', 'POST'])
 def register():
@@ -30,6 +34,7 @@ def register():
     new_user = users(login = login_form, password = password_hash)
     db.session.add(new_user)
     db.session.commit()
+    login_user(new_user, remember=False)
     return redirect('/lab8/')
 
 
@@ -47,9 +52,12 @@ def login():
     
     user = users.query.filter_by(login = login_form).first()
 
+    remember = False
+    if request.form.get('remember'):
+        remember = True
     if user:
         if check_password_hash(user.password, password_form):
-            login_user(user, remember=False)
+            login_user(user, remember=remember)
             return redirect('/lab8/')
         
     return render_template('/lab8/login.html', error = 'Неправльно введены данные!')
@@ -59,3 +67,10 @@ def login():
 @login_required
 def article_list():
     return 'Список статей'
+
+
+@lab8.route('/lab8/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/lab8/')

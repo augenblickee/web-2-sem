@@ -18,11 +18,7 @@
             <a href="/lab8/create">Создать статью</a>
         </div>
         <div>
-            {% if login %}
-                {{ login }}
-            {% else %}
-                Анонимус
-            {% endif %}
+            {{ user }}
         </div>
     </div>
 
