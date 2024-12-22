@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 8{% endblock %}
+
+{% block main %}
+    <h1>Создание статьи</h1>
+
+    <form method="post">
+        <div>
+            <label>
+                Название статьи:
+                <input type="text" maxlength="50" name="title" required>
+            </label>
+        </div>
+        
+        <div>
+            <label>
+                Текст статьи:
+                <textarea name="article_text" required></textarea>
+            </label>
+        </div>
+
+        <div>
+            <label>
+                Публичная:
+                <input type="checkbox" name="is_public" value="1">
+            </label>
+        </div>
+
+        <div>
+            <button type="submit">Готово</button>
+        </div>
+    </form>
+    <a href="/lab8/">Назад</a>
+    <div class="error">
+        {{ error }}
+    </div>
+{% endblock %}
