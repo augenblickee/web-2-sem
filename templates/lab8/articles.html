@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h1>Мои и публичные статьи</h1>
+
+    <form method="post">
+        <label for="query">Поиск:</label>
+        <input type="text" id="query" name="query" value="{{ search_query | default('') }}" placeholder="Введите текст для поиска...">
+        <button type="submit">Найти</button>
+    </form>
+
+    {% if search_query %}
+        <h2>Результаты поиска по запросу "{{ search_query }}":</h2>
+        {% if results %}
+            {% for article in results %}
+                <div class="article1">
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.article_text }}</p>
+                    <p>Автор: {{ article.user.login }}</p>
+                    {% if article.is_public %}
+                        <p>Публичная</p>
+                    {% else %}
+                        <p>Личная</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Ничего не найдено.</p>
+        {% endif %}
+    {% endif %}
+
+    <!-- Личные статьи -->
+    <h2>Мои статьи</h2>
+    {% if current_user.is_authenticated %}
+        {% if my_articles %}
+            {% for article in my_articles %}
+                <div class="article1">
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.article_text }}</p>
+                    {% if article.is_public %}
+                        <p>Публичная</p>
+                    {% else %}
+                        <p>Личная</p>
+                    {% endif %}
+                    {% if article.is_favorite %}
+                        <p>Любимая статья</p>
+                    {% endif %}
+                    <a href="/lab8/articles/edit/{{ article.id }}">Редактировать</a>
+                    <form action="/lab8/articles/delete/{{ article.id }}" method="post" style="display:inline;">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>У вас пока нет статей.</p>
+        {% endif %}
+    {% else %}
+        <p>Чтобы создавать и видеть свои статьи - <a href="/lab8/login">войдите</a> или <a href="/lab8/register">зарегестрируйтесь</a>!</p>
+    {% endif %}
+
+    <!-- Публичные статьи -->
+    <h2>Публичные статьи</h2>
+    {% if public_articles %}
+        {% for article in public_articles %}
+            <div class="article1">
+                <h3>{{ article.title }}</h3>
+                <p>{{ article.article_text }}</p>
+                <p>Автор: {{ article.user.login }}</p>
+                <p>Публичная</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Нет доступных публичных статей.</p>
+    {% endif %}
+
+    <a href="/lab8/">Назад</a>
+{% endblock %}

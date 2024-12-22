@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h1>Редактирование статьи</h1>
+    <form method="post">
+        <div>
+            <label for="title">Название:</label>
+            <input type="text" id="title" name="title" value="{{ article.title }}" required>
+        </div>
+
+        <div>
+            <label for="article_text">Текст:</label>
+            <textarea id="article_text" name="article_text" required>{{ article.article_text }}</textarea>
+        </div>
+        
+        <div>
+            <label for="is_public">
+                <input type="checkbox" id="is_public" name="is_public" value="1" {% if article.is_public %}checked{% endif %}>
+                Публичная
+            </label>
+            
+        </div> 
+        <button type="submit">Сохранить</button>
+    </form>
+    <a href="/lab8/articles/">Назад</a>
+{% endblock %}

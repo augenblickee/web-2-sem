@@ -518,3 +518,64 @@ ul {
 .table7 button.delete:hover {
     background-color: #c82333;
 }
+
+ 
+.article1 {
+    border: 1px solid #ddd; /* Легкая рамка вокруг статьи */
+    border-radius: 8px; /* Скругленные углы */
+    padding: 16px; /* Внутренние отступы */
+    margin-bottom: 16px; /* Отступ между статьями */
+    background-color: #f9f9f9; /* Светлый фон для статей */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Легкая тень для объема */
+    transition: transform 0.2s, box-shadow 0.2s; /* Плавные эффекты */
+}
+
+.article1:hover {
+    transform: translateY(-5px); /* Легкое поднятие при наведении */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Усиленная тень при наведении */
+}
+
+.article1-title {
+    font-size: 1.5em; /* Увеличенный размер шрифта для заголовка */
+    font-weight: bold; /* Жирный шрифт */
+    margin-bottom: 8px; /* Отступ под заголовком */
+    color: #333; /* Темный цвет заголовка */
+}
+
+.article1-text {
+    font-size: 1em; /* Стандартный размер текста */
+    line-height: 1.6; /* Увеличенная межстрочная высота для читаемости */
+    color: #555; /* Средний серый цвет для текста */
+    margin-bottom: 12px; /* Отступ под текстом */
+}
+
+.article1-meta {
+    font-size: 0.9em; /* Чуть меньше стандартного текста */
+    color: #777; /* Светло-серый цвет */
+    margin-top: 8px; /* Отступ над мета-информацией */
+}
+
+.article1-meta p {
+    margin: 0; /* Убираем отступы для мета-строк */
+}
+
+.article1-actions {
+    margin-top: 12px; /* Отступ сверху */
+}
+
+.article1-actions a, .article-actions button {
+    display: inline-block; /* Отображение в линию */
+    margin-right: 8px; /* Отступ между кнопками/ссылками */
+    padding: 8px 12px; /* Внутренние отступы */
+    border: 1px solid #ddd; /* Легкая рамка */
+    border-radius: 4px; /* Скругленные углы */
+    text-decoration: none; /* Убираем подчеркивание для ссылок */
+    color: #007BFF; /* Синий цвет для ссылок */
+    background-color: #fff; /* Белый фон */
+    transition: background-color 0.2s, color 0.2s; /* Плавные эффекты */
+}
+
+.article1-actions a:hover, .article-actions button:hover {
+    background-color: #007BFF; /* Синий фон при наведении */
+    color: #fff; /* Белый текст при наведении */
+}
