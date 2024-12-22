@@ -92,7 +92,7 @@ def article_list():
         if search_query:
             results = articles.query.filter(
                 (articles.title.ilike(f'%{search_query}%') | articles.article_text.ilike(f'%{search_query}%')) &
-                ((articles.is_public == True) | (articles.login_id == current_user.id))
+                ((articles.is_public == True))
             ).all()
         public_articles = articles.query.filter(
             (articles.is_public == True)
