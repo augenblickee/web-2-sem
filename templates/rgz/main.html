@@ -1,6 +1,43 @@
 {% extends "base.html" %}
 {% block lab %}Расчетно-графическое задание{% endblock %}
-
-{% block main %}
-
+{% block script %}
+<script src="{{ url_for('static', filename='rgz/rgz.js') }}"></script>
+<style>
+</style>
 {% endblock %}
+{% block main %}
+    <h1>Инициативы</h1>
+
+    <table class="table7">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Тема</th>
+                <th>Описание</th>
+                <th>Дата</th>
+                <th>Оценка</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="initiative-list"></tbody>
+    </table>
+
+    <div>
+        <button onclick="addInitiative()">Добавить инициативу</button>
+    </div>
+
+    <div class="modal">
+        <input type="hidden" id="initiative-id">
+        <label>
+            Тема:<br>
+            <input type="text" id="initiative-title">
+        </label><br>
+        <label>
+            Описание:<br>
+            <textarea id="initiative-content"></textarea>
+        </label><br>
+        <button onclick="sendInitiative()">OK</button>
+        <button onclick="cancel()">Отмена</button>
+    </div>
+{% endblock %}
+
