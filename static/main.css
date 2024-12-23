@@ -579,3 +579,18 @@ ul {
     background-color: #007BFF; /* Синий фон при наведении */
     color: #fff; /* Белый текст при наведении */
 }
+
+.gift {
+    border: 15px solid transparent; /* Основной стиль рамки */
+    border-image-source: url("/static/lab9/christmas9.png"); /* Изображение для рамки */
+    border-image-slice: 30%; /* Область изображения, которая используется */
+    border-image-width: 100px; /* Толщина рамки */
+    border-image-repeat: round; /* Повторение изображения по всему периметру */
+    border-radius: 10px; /* Скругленные углы */
+    padding: 20px; /* Внутренний отступ для содержимого */
+    background-color: #fffaf0; /* Легкий фон для контраста */
+    text-align: center; /* Выравнивание содержимого по центру */
+    font-family: "Comic Sans MS", cursive; /* Праздничный шрифт */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Легкая тень для объема */
+    width: 55vw; /* Ширина элемента — 40% от ширины окна */
+}

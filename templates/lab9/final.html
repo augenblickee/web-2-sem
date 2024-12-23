@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block main %}
+    <h1>Поздравляем, {{ name }}!</h1>
+    <p> {{ grown }}</p>
+    <p>Вот тебе подарок — {{ gift }}.</p>
+    <img class="gift" src="/static/lab9/{{ img }}" alt="{{ gift }}"><br>
+    <a href="/lab9/restart">Заново</a>
+{% endblock %}

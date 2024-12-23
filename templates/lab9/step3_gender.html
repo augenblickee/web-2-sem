@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block main %}
+    <h1>Ваш пол</h1>
+    <form method="post">
+        <label><input type="radio" name="gender" value="male" required> Мужчина</label>
+        <label><input type="radio" name="gender" value="female"> Женщина</label>
+        <button type="submit">Далее</button>
+    </form>
+{% endblock %}
