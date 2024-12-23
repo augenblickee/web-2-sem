@@ -80,7 +80,6 @@ def final():
 
 @lab9.route('/lab9/restart')
 def restart():
-    # Очищаем все ключи, связанные с текущей сессией
     for key in ['name9', 'age9', 'gender9', 'preference19', 'preference29']:
         session.pop(key, None)
     return redirect('/lab9/')
