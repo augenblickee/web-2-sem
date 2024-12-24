@@ -123,3 +123,28 @@ def logout_user():
     session.pop('user_id', None)
     return {"success": True}
 
+
+
+@rgz.route('/rgz/rest-api/initiatives/', methods=['POST'])
+def add_initiative():
+    user_id = session.get('user_id')
+    if not user_id:
+        return {"success": False, "error": "Вы не авторизованы."}, 401
+
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+
+    if not title or not content:
+        return {"success": False, "error": "Название и текст инициативы обязательны."}, 400
+
+    conn, cur = db_connect()
+    try:
+        cur.execute(
+            "INSERT INTO initiatives (title, content, created_by) VALUES (%s, %s, %s)",
+            (title, content, user_id)
+        )
+        conn.commit()
+        return {"success": True}
+    finally:
+        db_close(conn, cur)

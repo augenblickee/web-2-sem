@@ -92,6 +92,7 @@ function cancelLogin() {
     document.getElementById('login-modal').style.display = 'none';
 }
 
+
 // Вход пользователя
 function login() {
     const username = document.getElementById('login-username').value;
@@ -143,6 +144,42 @@ function logout() {
             location.reload(); // Перезагружаем страницу после выхода
         } else {
             alert('Ошибка при выходе.');
+        }
+    });
+}
+
+function showAddInitiativeModal() {
+    document.getElementById('add-initiative-modal').style.display = 'block';
+}
+
+function closeAddInitiativeModal() {
+    document.getElementById('add-initiative-modal').style.display = 'none';
+}
+
+function addInitiative() {
+    const title = document.getElementById('initiative-title').value;
+    const content = document.getElementById('initiative-content').value;
+
+    if (!title || !content) {
+        alert('Название и текст инициативы обязательны.');
+        return;
+    }
+
+    fetch('/rgz/rest-api/initiatives/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, content })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Инициатива успешно добавлена!');
+            closeAddInitiativeModal();
+            fillInitiativesList(); // Обновляем список инициатив
+        } else {
+            alert(data.error || 'Ошибка при добавлении инициативы.');
         }
     });
 }
