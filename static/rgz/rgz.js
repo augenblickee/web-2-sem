@@ -214,41 +214,62 @@ async function getJson(url, options) {
   }
   
   async function fillMyInitiativesList() {
-      try {
-          const initiatives = await getJson('/rgz/rest-api/my-initiatives/');
-          const tbody = document.getElementById('Myinitiatives-list');
-          tbody.innerHTML = '';
-          initiatives.forEach(initiative => {
-              const tr = document.createElement('tr');
-  
-              const editButton = document.createElement('button');
-              editButton.innerText = 'Редактировать';
-              editButton.onclick = function() {
-                  showEditInitiativeModal(initiative.id, initiative.title, initiative.content);
-              };
-  
-              const delButton = document.createElement('button');
-              delButton.innerText = 'Удалить';
-              delButton.onclick = function() {
-                  deleteInitiative(initiative.id);
-              };
-              tr.innerHTML = `
-                  <td>${initiative.id}</td>
-                  <td>${initiative.title}</td>
-                  <td>${initiative.content}</td>
-                  <td>${new Date(initiative.created_at).toLocaleDateString()}</td>
-                  <td>${initiative.score}</td>
-                   <td></td>
-              `;
-              tr.lastElementChild.append(editButton);
-              tr.lastElementChild.append(delButton);
-             
-              tbody.appendChild(tr);
-          });
-      } catch (error) {
-           showMessage(`Ошибка загрузки списка моих инициатив: ${error.message}`, 'error');
-      }
-  }
+    try {
+        const initiatives = await getJson('/rgz/rest-api/my-initiatives/');
+        const tbody = document.getElementById('Myinitiatives-list');
+         const userData = await getJson("/rgz/rest-api/user-data");
+        tbody.innerHTML = '';
+          if(initiatives.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6">У вас нет своих инициатив</td></tr>'
+          }
+          else {
+              initiatives.forEach(initiative => {
+                const tr = document.createElement('tr');
+                  let editButton;
+                  let delButton;
+                  if(userData && userData.user_id){
+                         editButton = document.createElement('button');
+                         editButton.innerText = 'Редактировать';
+                         editButton.onclick = function() {
+                            showEditInitiativeModal(initiative.id, initiative.title, initiative.content);
+                        };
+    
+                         delButton = document.createElement('button');
+                         delButton.innerText = 'Удалить';
+                         delButton.onclick = function() {
+                             deleteInitiative(initiative.id);
+                         };
+                  }
+                  else{
+                         editButton = document.createElement('button');
+                           editButton.innerText = 'Редактировать';
+                           editButton.disabled = true;
+    
+                        delButton = document.createElement('button');
+                        delButton.innerText = 'Удалить';
+                        delButton.disabled = true;
+                  }
+            
+    
+                tr.innerHTML = `
+                    <td>${initiative.id}</td>
+                    <td>${initiative.title}</td>
+                    <td>${initiative.content}</td>
+                    <td>${new Date(initiative.created_at).toLocaleDateString()}</td>
+                    <td>${initiative.score}</td>
+                     <td></td>
+                `;
+                tr.lastElementChild.append(editButton);
+                tr.lastElementChild.append(delButton);
+               
+                tbody.appendChild(tr);
+            });
+        }
+
+    } catch (error) {
+         showMessage(`Ошибка загрузки списка моих инициатив: ${error.message}`, 'error');
+    }
+}
   
   async function deleteInitiative(id) {
     if (confirm('Вы уверены, что хотите удалить эту инициативу?')) {
