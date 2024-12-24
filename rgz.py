@@ -199,3 +199,6 @@ def delete_initiative(id):
     finally:
         db_close(conn, cur)
 
+
+
+
