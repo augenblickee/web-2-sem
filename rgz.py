@@ -62,6 +62,10 @@ def main():
 
 @rgz.route('/rgz/rest-api/initiatives/', methods=['GET'])
 def get_initiatives():
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    offset = (page - 1) * per_page
+
     conn, cur = db_connect()
     try:
         cur.execute("""
@@ -75,11 +79,22 @@ def get_initiatives():
             FROM initiatives
             LEFT JOIN users ON initiatives.created_by = users.id
             ORDER BY initiatives.score DESC
-        """)
+            LIMIT %s OFFSET %s
+        """, (per_page, offset))
         initiatives = cur.fetchall()
         for initiative in initiatives:
             initiative['created_at'] = format_date(initiative['created_at'])
-        return jsonify(initiatives)
+
+        # Получаем общее количество инициатив
+        cur.execute("SELECT COUNT(*) FROM initiatives")
+        total_count = cur.fetchone()['count']
+
+        return jsonify({
+            "initiatives": initiatives,
+            "total_count": total_count,
+            "page": page,
+            "per_page": per_page,
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
@@ -196,6 +211,40 @@ def get_my_initiatives():
         db_close(conn, cur)
 
 
+@rgz.route('/rgz/rest-api/initiatives/<int:id>/', methods=['PUT'])
+def update_initiative(id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Вы не авторизованы."}), 401
+
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+
+    if not title or not content:
+        return jsonify({"error": "Название и текст инициативы обязательны."}), 400
+
+    conn, cur = db_connect()
+    try:
+        cur.execute("""
+            SELECT created_by FROM initiatives WHERE id = %s
+        """, (id,))
+        initiative = cur.fetchone()
+        if not initiative or initiative['created_by'] != user_id:
+            return jsonify({"error": "Вы не можете редактировать эту инициативу."}), 403
+
+        cur.execute("""
+            UPDATE initiatives 
+            SET title = %s, content = %s
+            WHERE id = %s
+        """, (title, content, id))
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+       db_close(conn, cur)
+
+
 @rgz.route('/rgz/rest-api/initiatives/<int:id>/', methods=['DELETE'])
 def delete_initiative(id):
     user_id = session.get('user_id')
@@ -217,39 +266,3 @@ def delete_initiative(id):
         return jsonify({"error": str(e)}), 500
     finally:
         db_close(conn, cur)
-
-
-@rgz.route('/rgz/rest-api/initiatives/<int:id>/', methods=['PUT'])
-def update_initiative(id):
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Вы не авторизованы."}), 401
-
-    data = request.get_json()
-    title = data.get('title')
-    content = data.get('content')
-
-    if not title or not content:
-        return jsonify({"error": "Название и текст инициативы обязательны."}), 400
-
-    conn, cur = db_connect()
-    try:
-        # Проверяем, принадлежит ли инициатива текущему пользователю
-        cur.execute("""
-            SELECT created_by FROM initiatives WHERE id = %s
-        """, (id,))
-        initiative = cur.fetchone()
-        if not initiative or initiative['created_by'] != user_id:
-            return jsonify({"error": "Вы не можете редактировать эту инициативу."}), 403
-
-        # Обновляем инициативу
-        cur.execute("""
-            UPDATE initiatives 
-            SET title = %s, content = %s
-            WHERE id = %s
-        """, (title, content, id))
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-       db_close(conn, cur)

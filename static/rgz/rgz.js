@@ -8,28 +8,53 @@ async function getJson(url, options) {
     return response.json();
   }
   
-  async function fillInitiativesList() {
-    try {
-      const initiatives = await getJson('/rgz/rest-api/initiatives/');
-      const tbody = document.getElementById('initiatives-list');
-      tbody.innerHTML = '';
+let currentPage = 1;
+let totalPages = 1;
+
+async function fillInitiativesList(page = 1) {
+  try {
+    const data = await getJson(`/rgz/rest-api/initiatives/?page=${page}`);
+    const initiatives = data.initiatives;
+    const tbody = document.getElementById('initiatives-list');
+    tbody.innerHTML = '';
       initiatives.forEach(initiative => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-                  <td>${initiative.id}</td>
-                  <td>${initiative.title}</td>
-                  <td>${initiative.content}</td>
-                  <td>${new Date(initiative.created_at).toLocaleDateString()}</td>
-                  <td>${initiative.score}</td>
-                  <td>${initiative.author || "Неизвестно"}</td>
-              `;
-            tbody.appendChild(tr)
-      });
-    } catch (error) {
-      alert(`Ошибка загрузки списка инициатив: ${error.message}`);
-    }
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                    <td>${initiative.id}</td>
+                    <td>${initiative.title}</td>
+                    <td>${initiative.content}</td>
+                    <td>${new Date(initiative.created_at).toLocaleDateString()}</td>
+                    <td>${initiative.score}</td>
+                    <td>${initiative.author || "Неизвестно"}</td>
+                `;
+              tbody.appendChild(tr)
+        });
+    
+    currentPage = data.page;
+    totalPages = Math.ceil(data.total_count / data.per_page);
+     updatePaginationButtons();
+  } catch (error) {
+    alert(`Ошибка загрузки списка инициатив: ${error.message}`);
   }
-  
+}
+
+function updatePaginationButtons() {
+  const prevButton = document.getElementById('prev-page');
+  const nextButton = document.getElementById('next-page');
+    prevButton.disabled = currentPage <= 1;
+    nextButton.disabled = currentPage >= totalPages;
+}
+function nextPage() {
+    if (currentPage < totalPages) {
+        fillInitiativesList(currentPage + 1);
+    }
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        fillInitiativesList(currentPage - 1);
+    }
+}
   
   function showRegisterModal() {
     document.getElementById('register-modal').style.display = 'block';
