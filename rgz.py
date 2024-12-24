@@ -45,7 +45,10 @@ def get_user_name():
     if user_id:
         conn, cur = db_connect()
         try:
-            cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
+            if current_app.config['DB_TYPE'] == 'postgres':
+                cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
+            else:
+                cur.execute("SELECT username FROM users WHERE id = ?", (user_id,))
             user = cur.fetchone()
             if user:
                 username = user['username']
@@ -73,25 +76,43 @@ def get_initiatives():
 
     conn, cur = db_connect()
     try:
-        cur.execute("""
-            SELECT 
-                initiatives.id, 
-                initiatives.title, 
-                initiatives.content, 
-                initiatives.created_at, 
-                initiatives.score,
-                users.username AS author
-            FROM initiatives
-            LEFT JOIN users ON initiatives.created_by = users.id
-            ORDER BY initiatives.score DESC
-            LIMIT %s OFFSET %s
-        """, (per_page, offset))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("""
+                SELECT 
+                    initiatives.id, 
+                    initiatives.title, 
+                    initiatives.content, 
+                    initiatives.created_at, 
+                    initiatives.score,
+                    users.username AS author
+                FROM initiatives
+                LEFT JOIN users ON initiatives.created_by = users.id
+                ORDER BY initiatives.score DESC
+                LIMIT %s OFFSET %s
+            """, (per_page, offset))
+        else:
+            cur.execute("""
+                SELECT 
+                    initiatives.id, 
+                    initiatives.title, 
+                    initiatives.content, 
+                    initiatives.created_at, 
+                    initiatives.score,
+                    users.username AS author
+                FROM initiatives
+                LEFT JOIN users ON initiatives.created_by = users.id
+                ORDER BY initiatives.score DESC
+                LIMIT ? OFFSET ?
+            """, (per_page, offset))
         initiatives = cur.fetchall()
         for initiative in initiatives:
              initiative['created_at'] = format_date(initiative['created_at'])
              if user_id:
                 # проверяем наличие голоса
-                 cur.execute("SELECT vote FROM votes WHERE user_id = %s AND initiative_id = %s", (user_id, initiative['id']))
+                 if current_app.config['DB_TYPE'] == 'postgres':
+                    cur.execute("SELECT vote FROM votes WHERE user_id = %s AND initiative_id = %s", (user_id, initiative['id']))
+                 else:
+                    cur.execute("SELECT vote FROM votes WHERE user_id = ? AND initiative_id = ?", (user_id, initiative['id']))
                  vote_data = cur.fetchone()
                  initiative['user_vote'] = vote_data['vote'] if vote_data else 0 
              else:
@@ -99,7 +120,10 @@ def get_initiatives():
 
 
         # Получаем общее количество инициатив
-        cur.execute("SELECT COUNT(*) FROM initiatives")
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT COUNT(*) FROM initiatives")
+        else:
+            cur.execute("SELECT COUNT(*) FROM initiatives")
         total_count = cur.fetchone()['count']
 
         return jsonify({
@@ -129,11 +153,17 @@ def vote_initiative(initiative_id):
     conn, cur = db_connect()
     try:
         # Проверяем, существует ли уже голос пользователя за эту инициативу
-        cur.execute("SELECT vote FROM votes WHERE user_id = %s AND initiative_id = %s", (user_id, initiative_id))
+        if current_app.config['DB_TYPE'] == 'postgres':
+             cur.execute("SELECT vote FROM votes WHERE user_id = %s AND initiative_id = %s", (user_id, initiative_id))
+        else:
+            cur.execute("SELECT vote FROM votes WHERE user_id = ? AND initiative_id = ?", (user_id, initiative_id))
         existing_vote = cur.fetchone()
         
         # Получаем текущий рейтинг инициативы
-        cur.execute("SELECT score FROM initiatives WHERE id = %s", (initiative_id,))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT score FROM initiatives WHERE id = %s", (initiative_id,))
+        else:
+            cur.execute("SELECT score FROM initiatives WHERE id = ?", (initiative_id,))
         current_score = cur.fetchone()['score']
         if current_score is None:
             current_score = 0
@@ -142,18 +172,31 @@ def vote_initiative(initiative_id):
         if existing_vote:
             new_score = current_score + vote_value - existing_vote['vote']
             # Обновляем голос
-            cur.execute("UPDATE votes SET vote = %s WHERE user_id = %s AND initiative_id = %s", (vote_value, user_id, initiative_id))
+            if current_app.config['DB_TYPE'] == 'postgres':
+                 cur.execute("UPDATE votes SET vote = %s WHERE user_id = %s AND initiative_id = %s", (vote_value, user_id, initiative_id))
+            else:
+                 cur.execute("UPDATE votes SET vote = ? WHERE user_id = ? AND initiative_id = ?", (vote_value, user_id, initiative_id))
         else:
             new_score = current_score + vote_value
             # Сохраняем голос
-            cur.execute("INSERT INTO votes (user_id, initiative_id, vote) VALUES (%s, %s, %s)", (user_id, initiative_id, vote_value))
+            if current_app.config['DB_TYPE'] == 'postgres':
+                cur.execute("INSERT INTO votes (user_id, initiative_id, vote) VALUES (%s, %s, %s)", (user_id, initiative_id, vote_value))
+            else:
+                 cur.execute("INSERT INTO votes (user_id, initiative_id, vote) VALUES (?, ?, ?)", (user_id, initiative_id, vote_value))
 
         # Обновляем рейтинг инициативы
-        cur.execute("""
-            UPDATE initiatives
-            SET score = %s
-            WHERE id = %s
-        """, (new_score, initiative_id))
+        if current_app.config['DB_TYPE'] == 'postgres':
+             cur.execute("""
+                UPDATE initiatives
+                SET score = %s
+                WHERE id = %s
+            """, (new_score, initiative_id))
+        else:
+            cur.execute("""
+                UPDATE initiatives
+                SET score = ?
+                WHERE id = ?
+            """, (new_score, initiative_id))
         
         return jsonify({"success": True, "new_score": new_score})
 
@@ -174,11 +217,17 @@ def register_user():
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     conn, cur = db_connect()
     try:
-        cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+        else:
+            cur.execute("SELECT id FROM users WHERE username = ?", (username,))
         if cur.fetchone():
             return jsonify({"error": "Пользователь с таким именем уже существует."}), 400
 
-        cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, password_hash.decode('utf-8')))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, password_hash.decode('utf-8')))
+        else:
+            cur.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, password_hash.decode('utf-8')))
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -196,7 +245,10 @@ def login_user():
 
     conn, cur = db_connect()
     try:
-        cur.execute("SELECT id, password_hash FROM users WHERE username = %s", (username,))
+        if current_app.config['DB_TYPE'] == 'postgres':
+             cur.execute("SELECT id, password_hash FROM users WHERE username = %s", (username,))
+        else:
+             cur.execute("SELECT id, password_hash FROM users WHERE username = ?", (username,))
         user = cur.fetchone()
         if user:
             if bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
@@ -233,10 +285,16 @@ def add_initiative():
 
     conn, cur = db_connect()
     try:
-        cur.execute(
-            "INSERT INTO initiatives (title, content, created_by) VALUES (%s, %s, %s)",
-            (title, content, user_id)
-        )
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute(
+                "INSERT INTO initiatives (title, content, created_by) VALUES (%s, %s, %s)",
+                (title, content, user_id)
+            )
+        else:
+             cur.execute(
+                "INSERT INTO initiatives (title, content, created_by) VALUES (?, ?, ?)",
+                (title, content, user_id)
+            )
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -251,17 +309,30 @@ def get_my_initiatives():
 
     conn, cur = db_connect()
     try:
-        cur.execute("""
-            SELECT 
-                initiatives.id, 
-                initiatives.title, 
-                initiatives.content, 
-                initiatives.created_at, 
-                initiatives.score
-            FROM initiatives
-            WHERE initiatives.created_by = %s
-            ORDER BY initiatives.created_at DESC
-        """, (user_id,))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("""
+                SELECT 
+                    initiatives.id, 
+                    initiatives.title, 
+                    initiatives.content, 
+                    initiatives.created_at, 
+                    initiatives.score
+                FROM initiatives
+                WHERE initiatives.created_by = %s
+                ORDER BY initiatives.created_at DESC
+            """, (user_id,))
+        else:
+             cur.execute("""
+                SELECT 
+                    initiatives.id, 
+                    initiatives.title, 
+                    initiatives.content, 
+                    initiatives.created_at, 
+                    initiatives.score
+                FROM initiatives
+                WHERE initiatives.created_by = ?
+                ORDER BY initiatives.created_at DESC
+            """, (user_id,))
         initiatives = cur.fetchall()
         for initiative in initiatives:
             initiative['created_at'] = format_date(initiative['created_at'])
@@ -287,18 +358,43 @@ def update_initiative(id):
 
     conn, cur = db_connect()
     try:
-        cur.execute("""
-            SELECT created_by FROM initiatives WHERE id = %s
-        """, (id,))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("""
+                SELECT created_by FROM initiatives WHERE id = %s
+            """, (id,))
+        else:
+             cur.execute("""
+                SELECT created_by FROM initiatives WHERE id = ?
+            """, (id,))
         initiative = cur.fetchone()
-        if not initiative or initiative['created_by'] != user_id:
-            return jsonify({"error": "Вы не можете редактировать эту инициативу."}), 403
-
-        cur.execute("""
-            UPDATE initiatives 
-            SET title = %s, content = %s
-            WHERE id = %s
-        """, (title, content, id))
+        if is_admin(user_id):
+            if current_app.config['DB_TYPE'] == 'postgres':
+                cur.execute("""
+                    UPDATE initiatives 
+                    SET title = %s, content = %s
+                    WHERE id = %s
+                """, (title, content, id))
+            else:
+                cur.execute("""
+                    UPDATE initiatives 
+                    SET title = ?, content = ?
+                    WHERE id = ?
+                """, (title, content, id))
+        else:
+            if not initiative or initiative['created_by'] != user_id:
+                return jsonify({"error": "Вы не можете редактировать эту инициативу."}), 403
+            if current_app.config['DB_TYPE'] == 'postgres':
+                cur.execute("""
+                    UPDATE initiatives 
+                    SET title = %s, content = %s
+                    WHERE id = %s
+                """, (title, content, id))
+            else:
+                 cur.execute("""
+                    UPDATE initiatives 
+                    SET title = ?, content = ?
+                    WHERE id = ?
+                """, (title, content, id))
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -314,16 +410,47 @@ def delete_initiative(id):
 
     conn, cur = db_connect()
     try:
-        cur.execute("""
-            SELECT created_by FROM initiatives WHERE id = %s
-        """, (id,))
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("""
+                SELECT created_by FROM initiatives WHERE id = %s
+            """, (id,))
+        else:
+            cur.execute("""
+                SELECT created_by FROM initiatives WHERE id = ?
+            """, (id,))
         initiative = cur.fetchone()
-        if not initiative or initiative['created_by'] != user_id:
-            return jsonify({"error": "Вы не можете удалить эту инициативу."}), 403
-
-        cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
+        if is_admin(user_id):
+            if current_app.config['DB_TYPE'] == 'postgres':
+                 cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
+            else:
+                 cur.execute("DELETE FROM initiatives WHERE id = ?", (id,))
+        else:
+            if not initiative or initiative['created_by'] != user_id:
+                return jsonify({"error": "Вы не можете удалить эту инициативу."}), 403
+            if current_app.config['DB_TYPE'] == 'postgres':
+                cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
+            else:
+                 cur.execute("DELETE FROM initiatives WHERE id = ?", (id,))
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
         db_close(conn, cur)
+
+def is_admin(user_id):
+    if not user_id:
+        return False
+    conn, cur = db_connect()
+    try:
+        if current_app.config['DB_TYPE'] == 'postgres':
+            cur.execute("SELECT is_admin FROM users WHERE id = %s", (user_id,))
+        else:
+            cur.execute("SELECT is_admin FROM users WHERE id = ?", (user_id,))
+        user = cur.fetchone()
+        if user:
+            return user['is_admin']
+        return False
+    except Exception as e:
+        return False
+    finally:
+      db_close(conn, cur)
