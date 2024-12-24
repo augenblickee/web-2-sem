@@ -38,6 +38,9 @@ def format_date(date_str):
     else:
       return date_str.strftime('%Y-%m-%d %H:%M:%S')
 
+def rows_to_dicts(rows):
+    #sqlite3 передает в конект роу формат, а апи с ним не работает, переделал в словарик
+    return [dict(row) for row in rows]
 
 def get_user_name():
     user_id = session.get('user_id')
@@ -105,6 +108,8 @@ def get_initiatives():
                 LIMIT ? OFFSET ?
             """, (per_page, offset))
         initiatives = cur.fetchall()
+        if current_app.config['DB_TYPE'] != 'postgres':
+            initiatives = rows_to_dicts(initiatives)
         for initiative in initiatives:
              initiative['created_at'] = format_date(initiative['created_at'])
              if user_id:
@@ -114,9 +119,12 @@ def get_initiatives():
                  else:
                     cur.execute("SELECT vote FROM votes WHERE user_id = ? AND initiative_id = ?", (user_id, initiative['id']))
                  vote_data = cur.fetchone()
-                 initiative['user_vote'] = vote_data['vote'] if vote_data else 0 
-             else:
-                initiative['user_vote'] = 0
+                 if vote_data:
+                    if current_app.config['DB_TYPE'] != 'postgres':
+                       vote_data = dict(vote_data)
+                    initiative['user_vote'] = vote_data['vote'] 
+                 else:
+                     initiative['user_vote'] = 0
 
 
         # Получаем общее количество инициатив
@@ -334,6 +342,8 @@ def get_my_initiatives():
                 ORDER BY initiatives.created_at DESC
             """, (user_id,))
         initiatives = cur.fetchall()
+        if current_app.config['DB_TYPE'] != 'postgres':
+            initiatives = rows_to_dicts(initiatives)
         for initiative in initiatives:
             initiative['created_at'] = format_date(initiative['created_at'])
         return jsonify(initiatives)
