@@ -22,10 +22,6 @@
         </div>
     {% endif %}
 
-    <div>
-        <button onclick="addFilm()">Добавить инициативу</button>
-    </div><br>
-
     <h1>Мои инициативы</h1>
     <table class="table7">
         <thead>
@@ -58,6 +54,7 @@
     
     <script>
         fillInitiativesList();
+        fillMyInitiativesList();
     </script>
 
     <!-- <div class="modal">
@@ -124,6 +121,23 @@
 
     <button onclick="addInitiative()">Добавить</button>
     <button onclick="closeAddInitiativeModal()">Отмена</button>
+</div>
+
+<div class="modal" id="edit-initiative-modal" style="display: none;">
+    <input type="hidden" id="initiative-id">
+
+    <label>
+        Название инициативы:<br>
+        <input type="text" id="initiative-title">
+    </label><br>
+
+    <label>
+        Текст инициативы:<br>
+        <textarea id="initiative-content"></textarea>
+    </label><br>
+
+    <button onclick="updateInitiative()">Сохранить</button>
+    <button onclick="closeEditInitiativeModal()">Отмена</button>
 </div>
 
 {% endblock %}

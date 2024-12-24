@@ -148,3 +148,54 @@ def add_initiative():
         return {"success": True}
     finally:
         db_close(conn, cur)
+
+@rgz.route('/rgz/rest-api/my-initiatives/', methods=['GET'])
+def get_my_initiatives():
+    user_id = session.get('user_id')
+    if not user_id:
+        return {"success": False, "error": "Вы не авторизованы."}, 401
+
+    conn, cur = db_connect()
+    try:
+        cur.execute("""
+            SELECT 
+                initiatives.id, 
+                initiatives.title, 
+                initiatives.content, 
+                initiatives.created_at, 
+                initiatives.score
+            FROM initiatives
+            WHERE initiatives.created_by = %s
+            ORDER BY initiatives.created_at DESC
+        """, (user_id,))
+        initiatives = cur.fetchall()
+        db_close(conn, cur)
+        return initiatives
+    except Exception as e:
+        db_close(conn, cur)
+        return {"success": False, "error": str(e)}, 500
+    
+
+@rgz.route('/rgz/rest-api/initiatives/<int:id>/', methods=['DELETE'])
+def delete_initiative(id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return {"success": False, "error": "Вы не авторизованы."}, 401
+
+    conn, cur = db_connect()
+    try:
+        # Проверяем, принадлежит ли инициатива текущему пользователю
+        cur.execute("""
+            SELECT created_by FROM initiatives WHERE id = %s
+        """, (id,))
+        initiative = cur.fetchone()
+        if not initiative or initiative['created_by'] != user_id:
+            return {"success": False, "error": "Вы не можете удалить эту инициативу."}, 403
+
+        # Удаляем инициативу
+        cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
+        conn.commit()
+        return {"success": True}
+    finally:
+        db_close(conn, cur)
+

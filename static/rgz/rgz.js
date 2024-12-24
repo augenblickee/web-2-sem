@@ -178,8 +178,77 @@ function addInitiative() {
             alert('Инициатива успешно добавлена!');
             closeAddInitiativeModal();
             fillInitiativesList(); // Обновляем список инициатив
+            location.reload(); 
         } else {
             alert(data.error || 'Ошибка при добавлении инициативы.');
         }
     });
 }
+
+function fillMyInitiativesList() {
+    fetch('/rgz/rest-api/my-initiatives/')
+        .then(response => response.json())
+        .then(initiatives => {
+            let tbody = document.getElementById('Myinitiatives-list');
+            tbody.innerHTML = '';
+            initiatives.forEach(initiative => {
+                let tr = document.createElement('tr');
+
+                let tdId = document.createElement('td');
+                let tdTitle = document.createElement('td');
+                let tdContent = document.createElement('td');
+                let tdDate = document.createElement('td');
+                let tdScore = document.createElement('td');
+                let tdActions = document.createElement('td');
+                
+                tdId.innerText = initiative.id;
+                tdTitle.innerText = initiative.title;
+                tdContent.innerText = initiative.content;
+                tdDate.innerText = initiative.created_at;
+                tdScore.innerText = initiative.score;
+
+                let editButton = document.createElement('button');
+                editButton.innerText = 'Редактировать';
+                editButton.onclick = function() {
+                    editInitiative(initiative.id);
+                };
+
+                let delButton = document.createElement('button');
+                delButton.innerText = 'Удалить';
+                delButton.onclick = function() {
+                    deleteInitiative(initiative.id);
+                };
+
+                tdActions.append(editButton);
+                tdActions.append(delButton);
+
+                tr.append(tdId);
+                tr.append(tdTitle);
+                tr.append(tdContent);
+                tr.append(tdDate);
+                tr.append(tdScore);
+                tr.append(tdActions);
+
+                tbody.append(tr);
+            });
+        });
+}
+
+// Функция для удаления инициативы
+function deleteInitiative(id) {
+    if (confirm('Вы уверены, что хотите удалить эту инициативу?')) {
+        fetch(`/rgz/rest-api/initiatives/${id}/`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Инициатива удалена.');
+                fillMyInitiativesList(); // Обновляем список инициатив
+            } else {
+                alert(data.error || 'Ошибка при удалении инициативы.');
+            }
+        });
+    }
+}
+
