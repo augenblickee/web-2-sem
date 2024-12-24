@@ -105,7 +105,6 @@ def get_initiatives():
                 FROM initiatives
                 LEFT JOIN users ON initiatives.created_by = users.id
                 ORDER BY initiatives.score DESC
-                LIMIT ? OFFSET ?
             """, (per_page, offset))
         initiatives = cur.fetchall()
         if current_app.config['DB_TYPE'] != 'postgres':
