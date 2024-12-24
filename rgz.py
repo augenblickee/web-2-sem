@@ -52,12 +52,16 @@ def get_user_name():
         finally:
             db_close(conn, cur)
     return username
-    
 
 @rgz.route('/rgz/')
 def main():
     username = get_user_name()
     return render_template('/rgz/main.html', username=username)
+
+@rgz.route('/rgz/rest-api/user-data', methods=['GET'])
+def get_user_data():
+    user_id = session.get('user_id')
+    return jsonify({'user_id': user_id})
 
 
 @rgz.route('/rgz/rest-api/initiatives/', methods=['GET'])
@@ -65,6 +69,7 @@ def get_initiatives():
     page = request.args.get('page', 1, type=int)
     per_page = 20
     offset = (page - 1) * per_page
+    user_id = session.get('user_id')
 
     conn, cur = db_connect()
     try:
@@ -83,7 +88,15 @@ def get_initiatives():
         """, (per_page, offset))
         initiatives = cur.fetchall()
         for initiative in initiatives:
-            initiative['created_at'] = format_date(initiative['created_at'])
+             initiative['created_at'] = format_date(initiative['created_at'])
+             if user_id:
+                # проверяем наличие голоса
+                 cur.execute("SELECT vote FROM votes WHERE user_id = %s AND initiative_id = %s", (user_id, initiative['id']))
+                 vote_data = cur.fetchone()
+                 initiative['user_vote'] = vote_data['vote'] if vote_data else 0 
+             else:
+                initiative['user_vote'] = 0
+
 
         # Получаем общее количество инициатив
         cur.execute("SELECT COUNT(*) FROM initiatives")
@@ -100,6 +113,54 @@ def get_initiatives():
     finally:
       db_close(conn, cur)
 
+
+@rgz.route('/rgz/rest-api/vote/<int:initiative_id>/', methods=['POST'])
+def vote_initiative(initiative_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Вы не авторизованы."}), 401
+
+    data = request.get_json()
+    vote_value = data.get('vote')
+
+    if vote_value not in [-1, 1]:
+        return jsonify({"error": "Недопустимое значение голоса."}), 400
+
+    conn, cur = db_connect()
+    try:
+        # Проверяем, существует ли уже голос пользователя за эту инициативу
+        cur.execute("SELECT vote FROM votes WHERE user_id = %s AND initiative_id = %s", (user_id, initiative_id))
+        existing_vote = cur.fetchone()
+        
+        # Получаем текущий рейтинг инициативы
+        cur.execute("SELECT score FROM initiatives WHERE id = %s", (initiative_id,))
+        current_score = cur.fetchone()['score']
+        if current_score is None:
+            current_score = 0
+
+        new_score = current_score
+        if existing_vote:
+            new_score = current_score + vote_value - existing_vote['vote']
+            # Обновляем голос
+            cur.execute("UPDATE votes SET vote = %s WHERE user_id = %s AND initiative_id = %s", (vote_value, user_id, initiative_id))
+        else:
+            new_score = current_score + vote_value
+            # Сохраняем голос
+            cur.execute("INSERT INTO votes (user_id, initiative_id, vote) VALUES (%s, %s, %s)", (user_id, initiative_id, vote_value))
+
+        # Обновляем рейтинг инициативы
+        cur.execute("""
+            UPDATE initiatives
+            SET score = %s
+            WHERE id = %s
+        """, (new_score, initiative_id))
+        
+        return jsonify({"success": True, "new_score": new_score})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db_close(conn, cur)
 
 @rgz.route('/rgz/rest-api/register', methods=['POST'])
 def register_user():
