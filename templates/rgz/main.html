@@ -1,43 +1,112 @@
 {% extends "base.html" %}
+
 {% block lab %}Расчетно-графическое задание{% endblock %}
+
 {% block script %}
 <script src="{{ url_for('static', filename='rgz/rgz.js') }}"></script>
 <style>
 </style>
 {% endblock %}
-{% block main %}
-    <h1>Инициативы</h1>
 
+{% block main %}
+    {% if username %}
+        <div>
+            Здравствуйте, {{ username }}! <br>
+            <button onclick="logout()">Выйти</button>
+        </div>
+    {% else %}
+        <div>
+            <button onclick="showRegisterModal()">Регистрация</button>
+            <button onclick="showLoginModal()">Вход</button>
+        </div>
+    {% endif %}
+
+    <div>
+        <button onclick="addFilm()">Добавить инициативу</button>
+    </div><br>
+
+    <h1>Мои инициативы</h1>
     <table class="table7">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Тема</th>
-                <th>Описание</th>
+                <th>Название</th>
+                <th>Текст</th>
                 <th>Дата</th>
                 <th>Оценка</th>
-                <th>Действия</th>
+                <th>Действие</th>
             </tr>
         </thead>
-        <tbody id="initiative-list"></tbody>
+        <tbody id="Myinitiatives-list"></tbody>
     </table>
 
-    <div>
-        <button onclick="addInitiative()">Добавить инициативу</button>
-    </div>
+    <h1>Инициативы</h1>
+    <table class="table7">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Текст</th>
+                <th>Дата</th>
+                <th>Оценка</th>
+                <th>Автор</th>
+            </tr>
+        </thead>
+        <tbody id="initiatives-list"></tbody>
+    </table>
+    
+    <script>
+        fillInitiativesList();
+    </script>
 
-    <div class="modal">
-        <input type="hidden" id="initiative-id">
+    <!-- <div class="modal">
+        <input type="hidden" id="id">
+        
         <label>
-            Тема:<br>
-            <input type="text" id="initiative-title">
+            Инициатива:<br>
+            <input type="text" id="initiative">
         </label><br>
+
         <label>
-            Описание:<br>
-            <textarea id="initiative-content"></textarea>
+            Текст инициативы:<br>
+            <input type="text" id="initiative_txt">
         </label><br>
-        <button onclick="sendInitiative()">OK</button>
+
+        <button onclick="sendFilm()">OK</button>
         <button onclick="cancel()">Отмена</button>
-    </div>
-{% endblock %}
+    </div> -->
 
+   <!-- Регистрация -->
+<div class="modal" id="register-modal" style="display: none;">
+    <label>
+        Введите имя:<br>
+        <input type="text" id="register-username">
+    </label><br>
+
+    <label>
+        Введите пароль:<br>
+        <input type="password" id="register-password">
+    </label><br>
+
+    <button onclick="register()">OK</button>
+    <button onclick="cancelRegister()">Отмена</button>
+</div>
+
+<!-- Вход -->
+<div class="modal" id="login-modal" style="display: none;">
+    <label>
+        Введите имя:<br>
+        <input type="text" id="login-username">
+    </label><br>
+
+    <label>
+        Введите пароль:<br>
+        <input type="password" id="login-password">
+    </label><br>
+
+    <button onclick="login()">OK</button>
+    <button onclick="cancelLogin()">Отмена</button>
+</div>
+
+
+{% endblock %}
