@@ -106,38 +106,23 @@
     <button onclick="cancelLogin()">Отмена</button>
 </div>
 
-<div class="modal" id="add-initiative-modal" style="display: none;">
-    <input type="hidden" id="initiative-id">
 
-    <label>
-        Название инициативы:<br>
-        <input type="text" id="initiative-title">
-    </label><br>
-
-    <label>
-        Текст инициативы:<br>
-        <textarea id="initiative-content"></textarea>
-    </label><br>
-
-    <button onclick="addInitiative()">Добавить</button>
-    <button onclick="closeAddInitiativeModal()">Отмена</button>
-</div>
-
+      
+<!--  Модальное окно для редактирования -->
 <div class="modal" id="edit-initiative-modal" style="display: none;">
-    <input type="hidden" id="initiative-id">
-
     <label>
-        Название инициативы:<br>
-        <input type="text" id="initiative-title">
+        Название:<br>
+        <input type="text" id="edit-initiative-title">
     </label><br>
 
     <label>
-        Текст инициативы:<br>
-        <textarea id="initiative-content"></textarea>
+        Текст:<br>
+        <textarea id="edit-initiative-content"></textarea>
     </label><br>
 
-    <button onclick="updateInitiative()">Сохранить</button>
+    <button onclick="editInitiative()">Сохранить</button>
     <button onclick="closeEditInitiativeModal()">Отмена</button>
 </div>
 
+    
 {% endblock %}

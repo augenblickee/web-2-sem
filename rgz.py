@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, abort, request, current_app, session, jsonify
+from flask import Blueprint, render_template, request, current_app, session, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import sqlite3
 from os import path
 import bcrypt
+from datetime import datetime
 
 rgz = Blueprint('rgz', __name__)
 
@@ -29,11 +30,16 @@ def db_close(conn, cur):
     cur.close()
     conn.close()
 
-def rows_to_dicts(rows):
-    return [dict(row) for row in rows]
 
-@rgz.route('/rgz/')
-def main():
+def format_date(date_str):
+    if isinstance(date_str, str):
+      date_obj = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+      return date_obj.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+      return date_str.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def get_user_name():
     user_id = session.get('user_id')
     username = None
     if user_id:
@@ -45,27 +51,40 @@ def main():
                 username = user['username']
         finally:
             db_close(conn, cur)
+    return username
+    
 
+@rgz.route('/rgz/')
+def main():
+    username = get_user_name()
     return render_template('/rgz/main.html', username=username)
+
 
 @rgz.route('/rgz/rest-api/initiatives/', methods=['GET'])
 def get_initiatives():
     conn, cur = db_connect()
-    cur.execute("""
-        SELECT 
-            initiatives.id, 
-            initiatives.title, 
-            initiatives.content, 
-            initiatives.created_at, 
-            initiatives.score,
-            users.username AS author
-        FROM initiatives
-        LEFT JOIN users ON initiatives.created_by = users.id
-        ORDER BY initiatives.score DESC
-    """)
-    initiatives = cur.fetchall()
-    db_close(conn, cur)
-    return initiatives
+    try:
+        cur.execute("""
+            SELECT 
+                initiatives.id, 
+                initiatives.title, 
+                initiatives.content, 
+                initiatives.created_at, 
+                initiatives.score,
+                users.username AS author
+            FROM initiatives
+            LEFT JOIN users ON initiatives.created_by = users.id
+            ORDER BY initiatives.score DESC
+        """)
+        initiatives = cur.fetchall()
+        for initiative in initiatives:
+            initiative['created_at'] = format_date(initiative['created_at'])
+        return jsonify(initiatives)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+      db_close(conn, cur)
+
 
 @rgz.route('/rgz/rest-api/register', methods=['POST'])
 def register_user():
@@ -74,24 +93,21 @@ def register_user():
     password = data.get('password')
 
     if not username or not password:
-        return {"success": False, "error": "Имя пользователя и пароль обязательны."}, 400
+        return jsonify({"error": "Имя пользователя и пароль обязательны."}), 400
 
-    # Генерация хэша пароля
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
     conn, cur = db_connect()
     try:
-        # Проверяем, существует ли пользователь с таким именем
         cur.execute("SELECT id FROM users WHERE username = %s", (username,))
         if cur.fetchone():
-            return {"success": False, "error": "Пользователь с таким именем уже существует."}, 400
+            return jsonify({"error": "Пользователь с таким именем уже существует."}), 400
 
-        # Сохраняем пользователя в базу данных
         cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, password_hash.decode('utf-8')))
-        conn.commit()
-        return {"success": True}
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     finally:
-        db_close(conn, cur)
+      db_close(conn, cur)
 
 @rgz.route('/rgz/rest-api/login', methods=['POST'])
 def login_user():
@@ -100,7 +116,7 @@ def login_user():
     password = data.get('password')
 
     if not username or not password:
-        return {"success": False, "error": "Имя пользователя и пароль обязательны."}, 400
+        return jsonify({"error": "Имя пользователя и пароль обязательны."}), 400
 
     conn, cur = db_connect()
     try:
@@ -109,34 +125,35 @@ def login_user():
         if user:
             if bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
                 session['user_id'] = user['id']
-                return {"success": True}
+                return jsonify({"success": True})
             else:
-                return {"success": False, "error": "Неправильное имя пользователя или пароль."}, 401
+               return jsonify({"error": "Неправильное имя пользователя или пароль."}), 401
         else:
-            return {"success": False, "error": "Неправильное имя пользователя или пароль."}, 401
+            return jsonify({"error": "Неправильное имя пользователя или пароль."}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     finally:
-        db_close(conn, cur)
+      db_close(conn, cur)
 
 
 @rgz.route('/rgz/rest-api/logout', methods=['POST'])
 def logout_user():
     session.pop('user_id', None)
-    return {"success": True}
-
+    return jsonify({"success": True})
 
 
 @rgz.route('/rgz/rest-api/initiatives/', methods=['POST'])
 def add_initiative():
     user_id = session.get('user_id')
     if not user_id:
-        return {"success": False, "error": "Вы не авторизованы."}, 401
+        return jsonify({"error": "Вы не авторизованы."}), 401
 
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
 
     if not title or not content:
-        return {"success": False, "error": "Название и текст инициативы обязательны."}, 400
+        return jsonify({"error": "Название и текст инициативы обязательны."}), 400
 
     conn, cur = db_connect()
     try:
@@ -144,16 +161,17 @@ def add_initiative():
             "INSERT INTO initiatives (title, content, created_by) VALUES (%s, %s, %s)",
             (title, content, user_id)
         )
-        conn.commit()
-        return {"success": True}
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     finally:
-        db_close(conn, cur)
+      db_close(conn, cur)
 
 @rgz.route('/rgz/rest-api/my-initiatives/', methods=['GET'])
 def get_my_initiatives():
     user_id = session.get('user_id')
     if not user_id:
-        return {"success": False, "error": "Вы не авторизованы."}, 401
+        return jsonify({"error": "Вы не авторизованы."}), 401
 
     conn, cur = db_connect()
     try:
@@ -169,18 +187,50 @@ def get_my_initiatives():
             ORDER BY initiatives.created_at DESC
         """, (user_id,))
         initiatives = cur.fetchall()
-        db_close(conn, cur)
-        return initiatives
+        for initiative in initiatives:
+            initiative['created_at'] = format_date(initiative['created_at'])
+        return jsonify(initiatives)
     except Exception as e:
+         return jsonify({"error": str(e)}), 500
+    finally:
         db_close(conn, cur)
-        return {"success": False, "error": str(e)}, 500
-    
+
 
 @rgz.route('/rgz/rest-api/initiatives/<int:id>/', methods=['DELETE'])
 def delete_initiative(id):
     user_id = session.get('user_id')
     if not user_id:
-        return {"success": False, "error": "Вы не авторизованы."}, 401
+       return jsonify({"error": "Вы не авторизованы."}), 401
+
+    conn, cur = db_connect()
+    try:
+        cur.execute("""
+            SELECT created_by FROM initiatives WHERE id = %s
+        """, (id,))
+        initiative = cur.fetchone()
+        if not initiative or initiative['created_by'] != user_id:
+            return jsonify({"error": "Вы не можете удалить эту инициативу."}), 403
+
+        cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db_close(conn, cur)
+
+
+@rgz.route('/rgz/rest-api/initiatives/<int:id>/', methods=['PUT'])
+def update_initiative(id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "Вы не авторизованы."}), 401
+
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+
+    if not title or not content:
+        return jsonify({"error": "Название и текст инициативы обязательны."}), 400
 
     conn, cur = db_connect()
     try:
@@ -190,15 +240,16 @@ def delete_initiative(id):
         """, (id,))
         initiative = cur.fetchone()
         if not initiative or initiative['created_by'] != user_id:
-            return {"success": False, "error": "Вы не можете удалить эту инициативу."}, 403
+            return jsonify({"error": "Вы не можете редактировать эту инициативу."}), 403
 
-        # Удаляем инициативу
-        cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
-        conn.commit()
-        return {"success": True}
+        # Обновляем инициативу
+        cur.execute("""
+            UPDATE initiatives 
+            SET title = %s, content = %s
+            WHERE id = %s
+        """, (title, content, id))
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     finally:
-        db_close(conn, cur)
-
-
-
-
+       db_close(conn, cur)
