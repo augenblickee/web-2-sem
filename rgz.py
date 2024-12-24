@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, abort, request, current_app, session
+from flask import Blueprint, render_template, abort, request, current_app, session, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import sqlite3
 from os import path
+import bcrypt
 
 rgz = Blueprint('rgz', __name__)
 
@@ -33,82 +34,92 @@ def rows_to_dicts(rows):
 
 @rgz.route('/rgz/')
 def main():
-    return render_template('/rgz/main.html')
+    user_id = session.get('user_id')
+    username = None
+    if user_id:
+        conn, cur = db_connect()
+        try:
+            cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
+            user = cur.fetchone()
+            if user:
+                username = user['username']
+        finally:
+            db_close(conn, cur)
+
+    return render_template('/rgz/main.html', username=username)
 
 @rgz.route('/rgz/rest-api/initiatives/', methods=['GET'])
 def get_initiatives():
     conn, cur = db_connect()
-    cur.execute("SELECT id, title, content, created_at, score FROM initiatives ORDER BY created_at DESC LIMIT 20")
+    cur.execute("""
+        SELECT 
+            initiatives.id, 
+            initiatives.title, 
+            initiatives.content, 
+            initiatives.created_at, 
+            initiatives.score,
+            users.username AS author
+        FROM initiatives
+        LEFT JOIN users ON initiatives.created_by = users.id
+        ORDER BY initiatives.score DESC
+    """)
     initiatives = cur.fetchall()
     db_close(conn, cur)
-    return rows_to_dicts(initiatives)
+    return initiatives
 
-@rgz.route('/rgz/rest-api/initiatives/<int:id>', methods=['GET'])
-def get_initiative(id):
-    conn, cur = db_connect()
-    cur.execute("SELECT * FROM initiatives WHERE id = %s", (id,))
-    initiative = cur.fetchone()
-    db_close(conn, cur)
-    if not initiative:
-        return abort(404)
-    return dict(initiative)
+@rgz.route('/rgz/rest-api/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
 
-@rgz.route('/rgz/rest-api/initiatives/', methods=['POST'])
-def add_initiative():
-    if 'user_id' not in session:
-        return {'description': 'Требуется авторизация'}, 403
-    initiative = request.get_json()
-    if not initiative or not all(k in initiative for k in ('title', 'content')):
-        return {'description': 'Некорректные данные'}, 400
-    conn, cur = db_connect()
-    cur.execute(
-        """
-        INSERT INTO initiatives (title, content, created_by) 
-        VALUES (%s, %s, %s) RETURNING id
-        """, 
-        (initiative['title'], initiative['content'], session['user_id'])
-    )
-    new_id = cur.fetchone()['id']
-    db_close(conn, cur)
-    return {'id': new_id}, 201
+    if not username or not password:
+        return {"success": False, "error": "Имя пользователя и пароль обязательны."}, 400
 
-@rgz.route('/rgz/rest-api/initiatives/<int:id>', methods=['DELETE'])
-def delete_initiative(id):
-    if 'user_id' not in session:
-        return {'description': 'Требуется авторизация'}, 403
+    # Генерация хэша пароля
+    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
     conn, cur = db_connect()
-    cur.execute("SELECT created_by FROM initiatives WHERE id = %s", (id,))
-    initiative = cur.fetchone()
-    if not initiative or initiative['created_by'] != session['user_id']:
+    try:
+        # Проверяем, существует ли пользователь с таким именем
+        cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+        if cur.fetchone():
+            return {"success": False, "error": "Пользователь с таким именем уже существует."}, 400
+
+        # Сохраняем пользователя в базу данных
+        cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, password_hash.decode('utf-8')))
+        conn.commit()
+        return {"success": True}
+    finally:
         db_close(conn, cur)
-        return abort(403)
-    cur.execute("DELETE FROM initiatives WHERE id = %s", (id,))
-    db_close(conn, cur)
-    return '', 204
 
-@rgz.route('/rgz/rest-api/initiatives/<int:id>/vote', methods=['POST'])
-def vote_initiative(id):
-    if 'user_id' not in session:
-        return {'description': 'Требуется авторизация'}, 403
-    vote = request.get_json()
-    if not vote or 'vote' not in vote or vote['vote'] not in (-1, 1):
-        return {'description': 'Некорректный голос'}, 400
+@rgz.route('/rgz/rest-api/login', methods=['POST'])
+def login_user():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return {"success": False, "error": "Имя пользователя и пароль обязательны."}, 400
+
     conn, cur = db_connect()
-    cur.execute("SELECT * FROM votes WHERE user_id = %s AND initiative_id = %s", (session['user_id'], id))
-    if cur.fetchone():
+    try:
+        cur.execute("SELECT id, password_hash FROM users WHERE username = %s", (username,))
+        user = cur.fetchone()
+        if user:
+            if bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+                session['user_id'] = user['id']
+                return {"success": True}
+            else:
+                return {"success": False, "error": "Неправильное имя пользователя или пароль."}, 401
+        else:
+            return {"success": False, "error": "Неправильное имя пользователя или пароль."}, 401
+    finally:
         db_close(conn, cur)
-        return {'description': 'Вы уже голосовали'}, 400
-    cur.execute(
-        """
-        INSERT INTO votes (user_id, initiative_id, vote) 
-        VALUES (%s, %s, %s)
-        """, 
-        (session['user_id'], id, vote['vote'])
-    )
-    cur.execute(
-        "UPDATE initiatives SET score = score + %s WHERE id = %s RETURNING score", 
-        (vote['vote'], id)
-    )
-    score = cur.fetchone()['score']
-    db_close(conn, cur)
-    return {'score': score}, 200
+
+
+@rgz.route('/rgz/rest-api/logout', methods=['POST'])
+def logout_user():
+    session.pop('user_id', None)
+    return {"success": True}
+
