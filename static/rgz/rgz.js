@@ -3,65 +3,72 @@ async function getJson(url, options) {
     const response = await fetch(url, options);
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || `HTTP error ${response.status}`);
+        try {
+              const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error ${response.status}`);
+        }
+         catch(e){
+             throw new Error(`HTTP error ${response.status}`);
+         }
     }
     return response.json();
-  }
-  
-  // Функция для отображения уведомлений (модальное окно или элемент)
-  function showMessage(message, type = 'info') {
+}
+
+// Функция для отображения уведомлений (модальное окно или элемент)
+function showMessage(message, type = 'info') {
     alert(message)
-  }
-  
-  let currentPage = 1;
-  let totalPages = 1;
-  let userId = null; // Добавим переменную для хранения user_id
-  
-  async function fillInitiativesList(page = 1) {
+}
+
+let currentPage = 1;
+let totalPages = 1;
+let userId = null; // Добавим переменную для хранения user_id
+
+async function fillInitiativesList(page = 1) {
     try {
-      const data = await getJson(`/rgz/rest-api/initiatives/?page=${page}`);
-      const initiatives = data.initiatives;
-      const tbody = document.getElementById('initiatives-list');
-      tbody.innerHTML = '';
-         // получаем user_id с сервера
-       try {
-           const  userData  = await getJson("/rgz/rest-api/user-data")
-        if(userData && userData.user_id){
-            userId = userData.user_id
+           // получаем user_id с сервера
+        try {
+            const  userData  = await getJson("/rgz/rest-api/user-data")
+            if(userData && userData.user_id){
+                userId = userData.user_id
+            }
+            else {
+                userId = null
+            }
         }
-        else {
+        catch (e){
             userId = null
         }
-       }
-      catch (e){
-           userId = null
-       }
-      initiatives.forEach(initiative => {
-        const tr = document.createElement('tr');
-          const voteButtons =  `
-                  <button onclick="voteInitiative(${initiative.id}, 1)" ${initiative.user_vote === 1 ? 'disabled': ''}>За</button>
-                  <button onclick="voteInitiative(${initiative.id}, -1)" ${initiative.user_vote === -1 ? 'disabled': ''}>Против</button>
-               `;
-  
-        tr.innerHTML = `
-                  <td>${initiative.id}</td>
-                  <td>${initiative.title}</td>
-                  <td>${initiative.content}</td>
-                  <td>${new Date(initiative.created_at).toLocaleDateString()}</td>
-                  <td>${initiative.score}</td>
-                  <td>${initiative.author || "Неизвестно"}</td>
-                   <td>${userId ? voteButtons : ''}</td>
-                  
-              `;
-                tbody.appendChild(tr)
-          });
-          currentPage = data.page;
-          totalPages = Math.ceil(data.total_count / data.per_page);
-           updatePaginationButtons();
+        const data = await getJson(`/rgz/rest-api/initiatives/?page=${page}`);
+        const initiatives = data.initiatives;
+        const tbody = document.getElementById('initiatives-list');
+        tbody.innerHTML = '';
+        initiatives.forEach(initiative => {
+            const tr = document.createElement('tr');
+            const author = initiative.author || "Неизвестно"
+            const voteButtons =  `
+                    <button onclick="voteInitiative(${initiative.id}, 1)" ${initiative.user_vote === 1 ? 'disabled': ''}>За</button>
+                    <button onclick="voteInitiative(${initiative.id}, -1)" ${initiative.user_vote === -1 ? 'disabled': ''}>Против</button>
+                 `;
+
+            tr.innerHTML = `
+                    <td>${initiative.id}</td>
+                    <td>${initiative.title}</td>
+                    <td>${initiative.content}</td>
+                    <td>${new Date(initiative.created_at).toLocaleDateString()}</td>
+                    <td>${initiative.score}</td>
+                    <td>${author}</td>
+                     <td>${userId ? voteButtons : ''}</td>
+                    
+                `;
+                  tbody.appendChild(tr)
+            });
+        currentPage = data.page;
+        totalPages = Math.ceil(data.total_count / data.per_page);
+        updatePaginationButtons();
     } catch (error) {
         showMessage(`Ошибка загрузки списка инициатив: ${error.message}`, 'error');
     }
-  }
+}
   
   async function voteInitiative(initiativeId, voteValue) {
       try {

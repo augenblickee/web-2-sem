@@ -126,7 +126,6 @@ def get_initiatives():
                  else:
                      initiative['user_vote'] = 0
 
-
         # Получаем общее количество инициатив
         if current_app.config['DB_TYPE'] == 'postgres':
             cur.execute("SELECT COUNT(*) FROM initiatives")
@@ -144,7 +143,6 @@ def get_initiatives():
         return jsonify({"error": str(e)}), 500
     finally:
       db_close(conn, cur)
-
 
 @rgz.route('/rgz/rest-api/vote/<int:initiative_id>/', methods=['POST'])
 def vote_initiative(initiative_id):
